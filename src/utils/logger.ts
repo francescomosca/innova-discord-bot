@@ -37,12 +37,13 @@ export const logWarn = (text: string, data?: any) => logger
   .log('warn', text, data ? data : undefined);
 export const logError = (text: string, data?: any) => logger
   .log('error', text, data ? data : undefined);
+  export const logDebug = (text: string, data?: any) => logger
+  .log('debug', text, data ? data : undefined);
 export const logVerbose = (text: string, data?: any) => logger
   .log('verbose', text, data ? data : undefined);
 
 export const setLogLevel = (level: string) => {
   // Object.keys(transports).forEach(key => transports[key].level = level);
-  transportsData['console'].level = level;
+  transportsData.console.level = level;
   logInfo('Log level set to ' + level);
-  logInfo('---------------------------');
 };

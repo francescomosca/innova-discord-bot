@@ -22,6 +22,10 @@ Launch the compiled project:
 Check your code via TSLint:
 > npm run lint
 
+## Todo
+- [ ] Docker setup
+- [ ] Make this bot useful (?)
+
 ## Credits
 
 #### Works with
