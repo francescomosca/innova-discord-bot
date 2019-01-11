@@ -1,6 +1,7 @@
 {
   "extends": ["tslint-consistent-codestyle", "tslint-sonarts", "tslint-eslint-rules"],
   "rules": {
+    "defaultSeverity": "warning",
     "no-duplicate-variable": true,
     "adjacent-overload-signatures": true,
     "array-type": [
@@ -124,7 +125,7 @@
     "prefer-const-enum": true,
     "prefer-while": true,
     "no-commented-code": false,
-    "no-duplicate-string": false, // per swagger
+    "no-duplicate-string": false,
     "no-statements-same-line": false
   },
   "rulesDirectory": [

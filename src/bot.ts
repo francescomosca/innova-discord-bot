@@ -89,7 +89,7 @@ export class DiscordBot {
 	private _handleCommand(message: Message): Promise<any> {
 		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
 
-		const args = message.content.slice(this._config.prefix.length).split(/ +/);
+		const args: any[] = message.content.slice(this._config.prefix.length).split(/ +/);
 		const commandName = args.shift().toLowerCase();
 		logVerbose(`command: ${commandName}, args: `, args);
 
