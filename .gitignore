@@ -1,0 +1,6 @@
+*.old*
+
+node_modules/
+build/
+
+config/settings.js
