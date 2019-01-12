@@ -9,14 +9,12 @@ const cmd: Command = {
   args: false,
   category: "admin",
   async execute(message: Message, /* , _args?: string[] */) {
-
     await message.channel.send('Goodbye.');
     try {
       message.client.destroy().then(process.exit(0));
     } catch (err) {
       new ErrorHandler().byError({ errCode: '?', errMessage: err });
     }
-
   },
 };
 

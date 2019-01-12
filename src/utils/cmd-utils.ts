@@ -21,7 +21,14 @@ export const cmdUtils = {
       logVerbose(`[checkArgs] command.name: ${command.name} | args: ${args.join(', ')}`);
       const argsNeeded = command.args && !args.length;
       return argsNeeded ? Promise.reject({ errCode: 'args_needed', command: command }) : Promise.resolve();
-    }
+    },
   },
-  user: {}
+  user: {
+    hasPermission: (command: Command, message: Message): Promise<any> => {
+      if (command.category != "admin") return Promise.resolve();
+      else if (command.category == "admin" && message.member.hasPermission('ADMINISTRATOR')) {
+        Promise.resolve();
+      } else Promise.reject('no_permission');
+    },
+  }
 };

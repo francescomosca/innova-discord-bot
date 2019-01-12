@@ -139,6 +139,7 @@ export class DiscordBot {
 		return cmdUtils.command.exists(commandName, this._client.commands)
 			.then(async (cmd: Command) => {
 				await cmdUtils.command.checkArgsNeeded(cmd, args);
+				await cmdUtils.user.hasPermission(cmd, message);
 
 				try {
 					await cmd.execute(message, args);
