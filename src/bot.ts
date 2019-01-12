@@ -1,11 +1,12 @@
 import { Client, Collection, Message } from 'discord.js';
+import { Spinner } from 'cli-spinner';
 import fs = require('fs');
 import path = require('path');
 
 import { SETTINGS } from '../config/settings.js';
+import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
 import { Command } from './models/command';
-import { BotSettings } from './models/bot-settings';
 import { logDebug, logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 
 /**
@@ -15,6 +16,7 @@ import { logDebug, logError, logInfo, logVerbose, logWarn, setLogLevel } from '.
 export class DiscordBot {
 	private _client: Client;
 	private readonly _config: BotSettings; // readonly solo se non si effettuano modifiche real time
+	private _loading: Spinner;
 
 	constructor() {
 		this._client = new Client();
@@ -23,13 +25,18 @@ export class DiscordBot {
 	}
 
 	public init(): void {
-		setLogLevel(this._config.logLevel);
 		logInfo(`
 
-	I N N O V A   B O T   v${process.env.npm_package_version}
+
+
+		I N N O V A   B O T   v${process.env.npm_package_version}		
 		
-	`);
+		
+		`);
+		
 		logInfo('Starting bot...');
+		
+		setLogLevel(this._config.logLevel);
 
 		this._getCommands();
 
@@ -42,7 +49,7 @@ export class DiscordBot {
 
 		// => Searching for commands
 		const commandFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
-		logVerbose('commandFiles: ', commandFiles);
+		logVerbose('commandFiles: ' + commandFiles);
 		let i = 1;
 		for (const file of commandFiles) {
 			const command = require(cmdPath + '\\' + file);
@@ -57,6 +64,7 @@ export class DiscordBot {
 
 		// => Bot is ready...
 		this._client.on('ready', () => {
+			this._loading.stop(true);
 			logInfo(`Connected!`);
 			logInfo(`Logged in as ${this._client.user.tag}`);
 			this._client.user.setActivity(this._config.activity);
@@ -79,11 +87,18 @@ export class DiscordBot {
 		/*****************************************************/
 
 		// => Bot error and warn handler
-		this._client.on('error', logError);
-		this._client.on('warn', logWarn);
+		this._client.on('error', err => {
+			this._loading.stop(true);
+			logError(err.stack);
+		});
+		this._client.on('warn', err => {
+			this._loading.stop(true);
+			logWarn(err);
+		});
 
 		// => Process handler
 		process.on('exit', () => {
+			this._loading.stop(true);
 			logVerbose(`Process exit.`);
 			this._client.destroy();
 		});
@@ -95,6 +110,9 @@ export class DiscordBot {
 		process.on('unhandledRejection', (err: Error) => {
 			logError('Uncaught Promise error: \n' + err.stack);
 		});
+
+		this._loading = new Spinner('Connecting..');
+		this._loading.start();
 
 		// => Login
 		this._client.login(this._config.token)
