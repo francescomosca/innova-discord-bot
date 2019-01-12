@@ -33,9 +33,9 @@ export class DiscordBot {
 		
 		
 		`);
-		
+
 		logInfo('Starting bot...');
-		
+
 		setLogLevel(this._config.logLevel);
 
 		this._getCommands();
@@ -44,6 +44,7 @@ export class DiscordBot {
 	}
 
 	private _getCommands() {
+		// find the commands path relative to the OS
 		const cmdPath = path.resolve(path.dirname(__dirname), './src/commands');
 		logDebug(`cmdPath: ${cmdPath}`);
 
@@ -67,15 +68,19 @@ export class DiscordBot {
 			this._loading.stop(true);
 			logInfo(`Connected!`);
 			logInfo(`Logged in as ${this._client.user.tag}`);
+
+			// sets the text under the bot's name
 			this._client.user.setActivity(this._config.activity);
 		});
 
 		/*****************************************************/
-		// => Message handler
+		// => Message listener
 		this._client.on('message', (message: Message) => {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
-				this._handleCommand(message).then(cmd => logDebug(`Command ${cmd} executed successfully`))
+				this._handleCommand(message)
+					.then(cmd => logDebug(`Command ${cmd} executed successfully`)
+						.catch(err => new ErrorHandler(message).byError(err)))
 					.catch(err => new ErrorHandler(message).byError(err));
 			} else {
 				/*
@@ -123,23 +128,28 @@ export class DiscordBot {
 	private _handleCommand(message: Message): Promise<any> {
 		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
 
-		const args: any[] = message.content.slice(this._config.prefix.length).split(/ +/);
-		const commandName = args.shift().toLowerCase();
-		// logVerbose(`command: ${commandName}, args: `, args);
+		// copy/point to the commands list
+		const cmds = this._client.commands;
+		// subtract the command and the args
+		const args: string[] = message.content.slice(this._config.prefix.length).split(/ +/);
+		const commandName: string = args.shift().toLowerCase();
 
-		if (this._client.commands.has(commandName)) {
+		// check if the command exist
+		const command: Command = cmds.get(commandName) || cmds.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+		if (!command) return Promise.reject('no_command');
 
-			const command: Command = this._client.commands.get(commandName);
-			if (command.args && !args.length) return Promise.reject({code: 'args_needed', command: command });
+		// if the command need args, throw 'args_needed'
+		if (command.args && !args.length) return Promise.reject({ code: 'args_needed', command: command });
 
-			try {
-				command.client ? command.execute(message, this._client, args)
-					: command.execute(message, undefined, args);
-				return Promise.resolve(commandName);
-			} catch (err) {
-				logError(err);
-				return Promise.reject("command_error");
-			}
-		} else return Promise.reject('no_command');
+		try {
+			// if the commands needs the client as an argument
+			command.client ? command.execute(message, this._client, args)
+				: command.execute(message, undefined, args);
+			return Promise.resolve(commandName); // @todo fixare perchè va sempre in positivo
+		} catch (err) {
+			logError(err);
+			return Promise.reject("command_error");
+		}
+
 	}
 }

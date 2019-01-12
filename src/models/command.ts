@@ -9,6 +9,8 @@ export class Command {
   
   /** Mostra come bisogna utilizzare il comando all'utente. Utile principalmente per i comandi che necessitano di argomenti. */
   usage?: string;
+
+  aliases?: string[];
   
   /** Indica se il comando necessita di argomenti. 
    * Avviserà l'utente se gli argomenti sono necessari ma non sono stati inseriti. */
