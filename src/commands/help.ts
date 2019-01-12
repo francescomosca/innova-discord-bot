@@ -2,7 +2,7 @@ import { Message, Collection, RichEmbed } from 'discord.js';
 // import { Command } from './../models/command';
 import { SETTINGS } from '../../config/settings.js';
 import { Command } from '../models/command';
-import { logDebug, logVerbose, logError } from '../utils/logger';
+import { logDebug, logError } from '../utils/logger';
 import { stringCapitalize } from '../utils/utils';
 
 const cmd: Command = {
@@ -58,12 +58,10 @@ const getCmdsList = (cmds: Collection<string, Command>, message: Message): RichE
   for (const cat in Command.category) {
     if (cat) {
       catCommands = cmds.filterArray(cmd => cmd.category == cat);
-      logVerbose(`cat: ${cat} | catCommands: ${catCommands.map(x => x.name).join(', ')}`);
+      // logVerbose(`cat: ${cat} | catCommands: ${catCommands.map(x => x.name).join(', ')}`);
       if (catCommands.map(cmd => cmd).length) finalEmbed.addField(
         stringCapitalize(cat),
-        catCommands.map(cmd => `\`\`\`markdown
-${SETTINGS.prefix + cmd.name}
-> ${cmd.description}\`\`\``).join('\n')
+        catCommands.map(cmd => `\`${SETTINGS.prefix + cmd.name}\` - *${cmd.description}*`).join('\n')
       );
 
     }

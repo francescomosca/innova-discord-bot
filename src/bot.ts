@@ -21,7 +21,7 @@ export class DiscordBot {
 
 	constructor() {
 		this._client = new Client();
-		this._client.commands = new Collection();
+		this._client.commands = new Collection(); // public commands: Collection<string, Command>;
 		this._config = SETTINGS;
 	}
 
