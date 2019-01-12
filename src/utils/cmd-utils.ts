@@ -1,7 +1,7 @@
 import { Message, Collection } from 'discord.js';
 import { Command } from '../models/command';
 import { SETTINGS } from '../../config/settings.js';
-import { logVerbose } from './logger';
+import { logVerbose, logWarn } from './logger';
 
 export const cmdUtils = {
   command: {
@@ -20,7 +20,7 @@ export const cmdUtils = {
     checkArgsNeeded: (command: Command, args: string[]): Promise<any> => {
       logVerbose(`[checkArgs] command.name: ${command.name} | args: ${args.join(', ')}`);
       const argsNeeded = command.args && !args.length;
-      return argsNeeded ? Promise.reject({ code: 'args_needed', command: command }) : Promise.resolve();
+      return argsNeeded ? Promise.reject({ errCode: 'args_needed', command: command }) : Promise.resolve();
     }
   },
   user: {}
