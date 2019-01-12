@@ -25,6 +25,7 @@ export class DiscordBot {
 	}
 
 	public init(): void {
+		console.clear();
 		logInfo(`
 
 
@@ -79,15 +80,13 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._handleCommand(message)
-					.then(cmd => logDebug(`Command ${cmd} executed successfully`)
-						.catch(err => new ErrorHandler(message).byError(err)))
+					.then(cmd => logDebug(`Command ${cmd} executed successfully`))
 					.catch(err => new ErrorHandler(message).byError(err));
-			} else {
-				/*
+			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
 						message.reply('Ciao umano!');
-				}*/
-			}
+				}
+			} */
 		});
 		/*****************************************************/
 
@@ -125,7 +124,7 @@ export class DiscordBot {
 			.catch(logError);
 	}
 
-	private _handleCommand(message: Message): Promise<any> {
+	private async _handleCommand(message: Message): Promise<any> {
 		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
 
 		// copy/point to the commands list
@@ -142,10 +141,8 @@ export class DiscordBot {
 		if (command.args && !args.length) return Promise.reject({ code: 'args_needed', command: command });
 
 		try {
-			// if the commands needs the client as an argument
-			command.client ? command.execute(message, this._client, args)
-				: command.execute(message, undefined, args);
-			return Promise.resolve(commandName); // @todo fixare perchè va sempre in positivo
+			command.execute(message, args);
+			return Promise.resolve(commandName);
 		} catch (err) {
 			logError(err);
 			return Promise.reject("command_error");

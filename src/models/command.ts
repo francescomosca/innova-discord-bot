@@ -16,9 +16,6 @@ export class Command {
    * Avviserà l'utente se gli argomenti sono necessari ma non sono stati inseriti. */
   args?: boolean;
   
-  /** Indica se il comando necessita del controllo sul client. */
-  client?: boolean;
-  
   /** Lo script che verrà eseguito quando il comando viene inserito. */
-  execute: (message?: Message, client?: Client, args?: string[]) => any;
+  execute: (message?: Message, args?: string[]) => any;
 }

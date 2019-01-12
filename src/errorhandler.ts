@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
 
-import { prefix } from '../config/settings.js';
+import { SETTINGS } from '../config/settings.js';
 import { Command } from './models/command';
-import { logError, logVerbose } from './utils/logger';
+import { logError, logDebug } from './utils/logger';
 
 export class ErrorHandler {
 
@@ -24,7 +24,7 @@ export class ErrorHandler {
       case 'args_needed':
         reply = `You didn't provide any arguments, ${message.author}!`;
         if (data.command && data.command.usage) {
-          reply += `\nUsage: '${prefix}${data.command.name} ${data.command.usage}'`;
+          reply += `\nUsage: '${SETTINGS.prefix}${data.command.name} ${data.command.usage}'`;
         }
         message.channel.send(reply);
         break;
@@ -33,7 +33,7 @@ export class ErrorHandler {
         message.channel.send('There was an error trying to execute that command!');
         break;
       case 'no_command':
-        logVerbose(`code: ${err}`);
+        logDebug(`code: ${err}`);
         message.channel.send(`There is no command with that name, ${message.author}`);
         break;
       default: // e case '?'
