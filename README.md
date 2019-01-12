@@ -3,6 +3,8 @@ Innova Discord Bot
 </h1>
 
 ## Installation
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot?ref=badge_shield)
+
 
 ### Requires:
 
@@ -34,6 +36,9 @@ Launch the project with live reload:
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/francescomosca/innova-discord-bot/blob/master/LICENSE) file for details.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot?ref=badge_large)
 
 ### Author
 **Francesco Mosca** - <francesco.mosca@outlook.com> 
