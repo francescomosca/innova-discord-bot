@@ -10,7 +10,7 @@ const cmd: Command = {
   category: 'general',
   aliases: ['commands', 'info'],
   args: false,
-  execute(message: Message, args?: string[]) {
+  async execute(message: Message, args?: string[]) {
 
     if (!args.length) {
       // show commands list

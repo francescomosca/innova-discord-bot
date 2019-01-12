@@ -7,7 +7,7 @@ const cmd: Command = {
   description: 'Ping!',
   category: 'general',
   args: false,
-  execute(message: Message /*, args: string[] */) {
+  async execute(message: Message /*, args: string[] */) {
       message.channel.send('Pong bitch!');
   },
 };

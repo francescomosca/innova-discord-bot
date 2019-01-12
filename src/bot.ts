@@ -8,6 +8,7 @@ import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
 import { Command } from './models/command';
 import { logDebug, logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
+import { cmdUtils } from './utils/cmd-utils';
 
 /**
  * Main class of the Discord Bot.
@@ -55,7 +56,7 @@ export class DiscordBot {
 		let count = 1;
 		for (const file of cmdFiles) {
 			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
-			console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
+			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
 			this._client.commands.set(cmdFile.name, cmdFile);
 			logVerbose(`[${count}/${cmdFiles.length}] Command '${cmdFile.name}' loaded`, cmdFile);
 			count++;
@@ -81,7 +82,7 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._handleCommand(message)
-					.then(cmd => logDebug(`Command ${cmd} executed successfully`))
+					.then(cmd => logDebug(`Command ${SETTINGS.prefix}${cmd.name} executed successfully`))
 					.catch(err => new ErrorHandler(message).byError(err));
 			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
@@ -93,11 +94,13 @@ export class DiscordBot {
 
 		// => Bot error and warn handler
 		this._client.on('error', err => {
-			this._loading.stop(true);
+			this._loading.stop();
+			console.error(err);
 			logError(err.stack);
 		});
 		this._client.on('warn', err => {
-			this._loading.stop(true);
+			this._loading.stop();
+			console.warn(err);
 			logWarn(err);
 		});
 
@@ -128,26 +131,23 @@ export class DiscordBot {
 	private async _handleCommand(message: Message): Promise<any> {
 		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
 
-		// copy/point to the commands list
-		const cmds = this._client.commands;
 		// subtract the command and the args
-		const args: string[] = message.content.slice(this._config.prefix.length).split(/ +/);
+		const args: string[] = cmdUtils.command.getArgs(message);
 		const commandName: string = args.shift().toLowerCase();
 
 		// check if the command exist
-		const command: Command = cmds.get(commandName) || cmds.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-		if (!command) return Promise.reject('no_command');
+		return cmdUtils.command.exists(commandName, this._client.commands)
+			.then(async (cmd: Command) => {
+				await cmdUtils.command.checkArgsNeeded(cmd, args);
 
-		// if the command need args, throw 'args_needed'
-		if (command.args && !args.length) return Promise.reject({ code: 'args_needed', command: command });
+				try {
+					await cmd.execute(message, args);
+					return Promise.resolve(cmd);
+				} catch (err) {
+					logError(err);
+					return Promise.reject("command_error");
+				}
 
-		try {
-			command.execute(message, args);
-			return Promise.resolve(commandName);
-		} catch (err) {
-			logError(err);
-			return Promise.reject("command_error");
-		}
-
+			}).catch(err => Promise.reject(err));
 	}
 }
