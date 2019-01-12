@@ -1,8 +1,8 @@
-import { Message } from 'discord.js';
+import { Message, Collection } from 'discord.js';
 // import { Command } from './../models/command';
 import { SETTINGS } from '../../config/settings.js';
 import { Command } from '../models/command';
-import { logDebug } from '../utils/logger';
+import { logDebug, logVerbose } from '../utils/logger';
 
 const cmd: Command = {
   name: 'help',
@@ -28,13 +28,17 @@ const showCommandList = async (message: Message) => {
   logDebug("command categories: " + categories.join(', '));
 
   // tslint:disable-next-line:prefer-const
-  let data: string[] = [];
+  let helpMsg: string;
 
-  data.push("Here's a list of all my commands:\n");
-  data.push(cmds.map(cmd => cmd.name).join(', '));
-  data.push(`\nYou can send \`${SETTINGS.prefix}help <command name>\` to get info on a specific command!`);
+  helpMsg = `\`\`\`markdown
+#Here's a list of all my commands:
 
-  return message.author.send(data, { split: true })
+${getCmdsList(cmds)}
+
+#You can send \`${SETTINGS.prefix}help <command name>\` to get info on a specific command!
+\`\`\``;
+
+  return message.author.send(helpMsg, { split: true })
     .then(() => {
       if (message.channel.type === 'dm') return;
       message.reply("I\'ve sent you a DM with all my commands!").then(
@@ -45,6 +49,22 @@ const showCommandList = async (message: Message) => {
       console.error(`Could not send help DM to ${message.author.tag}.\n`, error);
       message.reply("it seems like I can't DM you! Do you have DMs disabled?");
     });
+};
+
+const getCmdsList = (cmds: Collection<string, Command>): string => {
+  let msgData: string = '';
+  let catCommands: Command[] = [];
+  for (const cat in Command.category) {
+    if (cat) {
+      catCommands = cmds.filterArray(cmd => cmd.category == cat);
+      logVerbose(`cat: ${cat} | catCommands: ${catCommands.map(x => x.name).join(', ')}`);
+      if (catCommands || catCommands !== []) {
+        msgData += "\n# ----- " + cat.toUpperCase() + " ----- #\n";
+        msgData += catCommands.map(cmd => SETTINGS.prefix + cmd.name + '\n> ' + cmd.description).join('\n');
+      }
+    }
+  }
+  return msgData;
 };
 
 const showCommandDetails = async (message: Message, args: string[]) => {
