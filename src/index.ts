@@ -1,4 +1,5 @@
+// require('ts-node/register');
 import { DiscordBot } from './bot';
 
-const bot: DiscordBot = new DiscordBot();
-bot.init();
+// @todo controllare correttezza dei config, poi:
+new DiscordBot().init();

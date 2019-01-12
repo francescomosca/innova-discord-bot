@@ -4,7 +4,7 @@
 	"description": "A Discord Bot made with discord.js",
 	"main": "index.js",
 	"scripts": {
-		"start": "ts-node --inspect=5858 src/index.ts",
+		"start": "node --inspect -r ts-node/register src/index.ts",
 		"serve": "nodemon"
 	},
 	"author": "Francesco Mosca <francesco.mosca@outlook.com>",
@@ -14,7 +14,6 @@
 		"@types/node": "^9.6.5",
 		"del": "^3.0.0",
 		"nodemon": "^1.17.3",
-		"ts-node": "^7.0.1",
 		"tslint": "^5.9.1",
 		"tslint-consistent-codestyle": "^1.15.0",
 		"tslint-eslint-rules": "^5.1.0",
@@ -24,6 +23,7 @@
 	"dependencies": {
 		"cli-spinner": "^0.2.8",
 		"discord.js": "^11.4.2",
+		"ts-node": "^7.0.1",
 		"winston": "^3.1.0",
 		"winston-daily-rotate-file": "^3.5.2"
 	}

@@ -50,14 +50,15 @@ export class DiscordBot {
 		logDebug(`cmdPath: ${cmdPath}`);
 
 		// => Searching for commands
-		const commandFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
-		logVerbose('commandFiles: ' + commandFiles);
-		let i = 1;
-		for (const file of commandFiles) {
-			const command = require(cmdPath + '\\' + file);
-			this._client.commands.set(command.name, command);
-			logVerbose(`[${i}/${commandFiles.length}] Command '${command.name}' loaded:`, command);
-			i++;
+		const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
+		logVerbose('commandFiles: ' + cmdFiles);
+		let count = 1;
+		for (const file of cmdFiles) {
+			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
+			console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
+			this._client.commands.set(cmdFile.name, cmdFile);
+			logVerbose(`[${count}/${cmdFiles.length}] Command '${cmdFile.name}' loaded`, cmdFile);
+			count++;
 		}
 		logDebug(`List of commands: ${this._client.commands}`);
 	}

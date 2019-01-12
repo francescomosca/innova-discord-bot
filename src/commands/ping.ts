@@ -1,11 +1,15 @@
 import { Message } from 'discord.js';
+import { Command } from '../models/command';
 // import { Command } from './../models/command';
 
-module.exports = {
+const cmd: Command = {
   name: 'ping',
   description: 'Ping!',
+  category: 'general',
   args: false,
   execute(message: Message /*, args: string[] */) {
       message.channel.send('Pong bitch!');
   },
 };
+
+module.exports = cmd;
