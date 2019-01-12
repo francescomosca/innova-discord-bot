@@ -1,30 +1,45 @@
 import { Message } from 'discord.js';
-import { logError } from './utils/logger';
+
+import { prefix } from '../config/settings.js';
+import { Command } from './models/command';
+import { logError, logVerbose } from './utils/logger';
 
 export class ErrorHandler {
 
-  private _message: Message;
+  constructor(
+    private _message?: Message
+  ) { }
 
-  constructor(message?: Message) {
-    if (message) this._message = message;
-  }
-
-  public byErrorString(error: string): void {
+  public byError(err: string | { errCode: string, errMessage?: any, command?: Command }): void {
     const message: Message = this._message;
-    
-    switch (error) {
+
+    let reply: string;
+
+    let data: { errCode: string, errMessage?: any, command?: Command };
+    if (typeof err == "string") {
+      data = { errCode: err };
+    } else data = err;
+
+    switch (err) {
       case 'args_needed':
-        message.channel.send(`You didn't provide any arguments, ${message.author}!`);
+        reply = `You didn't provide any arguments, ${message.author}!`;
+        if (data.command && data.command.usage) {
+          reply += `\nUsage: '${prefix}${data.command.name} ${data.command.usage}'`;
+        }
+        message.channel.send(reply);
         break;
       case 'command_error':
-        logError(`code: ${error}`);
+        logError(`code: ${err}`);
         message.channel.send('There was an error trying to execute that command!');
         break;
       case 'no_command':
+        logVerbose(`code: ${err}`);
         message.channel.send(`There is no command with that name, ${message.author}`);
         break;
-      default:
-      // errore inaspettato
+      default: // e case '?'
+        reply = 'Unexpected error';
+        if (data.errMessage) reply += `: ${data.errMessage}`;
+        logError(reply);
     }
   }
 }

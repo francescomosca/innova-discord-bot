@@ -4,8 +4,8 @@
 	"description": "A Discord Bot made with discord.js",
 	"main": "index.js",
 	"scripts": {
-    "start": "ts-node src/index.ts",
-    "serve": "nodemon"
+		"start": "ts-node --inspect=5858 src/index.ts",
+		"serve": "nodemon"
 	},
 	"author": "Francesco Mosca <francesco.mosca@outlook.com>",
 	"license": "MIT",

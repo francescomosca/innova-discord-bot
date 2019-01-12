@@ -1,7 +1,9 @@
 *.old*
 
+.vscode/
 node_modules/
 build/
+dist/
 log/
 
 config/settings.js

@@ -3,15 +3,24 @@ Innova Discord Bot
 </h1>
 
 ## Installation
-In order to use the bot, you must install the packages via the following command:
-> npm i
+
+### Requires:
+
+- [Git](https://git-scm.com/downloads)
+- Node.js ([Windows](https://nodejs.org/it/) | [macOS/Linux](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions))
+
+1. Download the repo: `git clone https://github.com/francescomosca/innova-discord-bot.git`
+2. Go to the project folder: `cd innova-discord-bot`
+3. Install the project packages via the following command: `npm i`
 
 ## Usage
-Launch the project in development mode:
+
+Launch the project:
+> npm run start
+
+Launch the project with live reload:
 > npm run serve
 
-Launch the compiled project:
-> npm run start
 
 ## Todo
 - [ ] Docker setup

@@ -13,8 +13,9 @@
         ]
 	},
 	"exclude": [
-		"./build/*",
 		"./node_modules/*",
+		"./build/*",
+		"./log/*"
 	],
 	"include": [
 		"./src/**/*.ts"
