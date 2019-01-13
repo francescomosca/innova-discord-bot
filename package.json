@@ -4,8 +4,13 @@
 	"description": "A Discord Bot made with discord.js",
 	"main": "index.js",
 	"scripts": {
-		"start": "node --inspect -r ts-node/register src/index.ts",
+		"dev": "node --inspect -r ts-node/register src/index.ts",
+		"start": "ts-node src/index.ts --transpileOnly",
 		"serve": "nodemon"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/francescomosca/innova-discord-bot"
 	},
 	"author": "Francesco Mosca <francesco.mosca@outlook.com>",
 	"license": "MIT",
@@ -18,7 +23,7 @@
 		"tslint-consistent-codestyle": "^1.15.0",
 		"tslint-eslint-rules": "^5.1.0",
 		"tslint-sonarts": "^1.8.0",
-		"typescript": "^2.8.1"
+		"typescript": "^3.2.2"
 	},
 	"dependencies": {
 		"bufferutil": "^4.0.1",
