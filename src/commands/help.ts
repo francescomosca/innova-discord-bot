@@ -5,10 +5,11 @@ import { SETTINGS } from '../../config/settings.js';
 import { Command } from '../models/command';
 import { logDebug, logError } from '../utils/logger';
 import { stringCapitalize } from '../utils/utils';
+import { __ } from 'i18n';
 
 const cmd: Command = {
   name: 'help',
-  description: 'List all of the commands or info about a specific command.',
+  description: __("command.help.description"),
   category: 'general',
   aliases: ['commands', 'info'],
   args: false,
@@ -35,14 +36,14 @@ const showCommandList = async (message: Message) => {
     return message.author.send({ embed: helpMsg })
     .then(() => {
       if (message.channel.type === 'dm') return;
-      message.reply("I\'ve sent you a DM with all my commands!").then(
+      message.reply(__("command.help.dmSent:I've sent you a DM with all my commands!")).then(
         (msg: Message) => msg.deletable ? msg.delete(4000) : null
       );
     })
     .catch(error => {
       logError(`Could not send help DM to ${message.author.tag}.\n` + error);
       console.error(error);
-      message.reply("it seems like I can't DM you! Do you have DMs disabled?");
+      message.reply(__("command.help.dmError:it seems like I can't DM you! Do you have DMs disabled?"));
     });
   } else {
     return message.channel.send({ embed: helpMsg })
@@ -59,8 +60,8 @@ const getCmdsEmbed = (cmds: Collection<any, any>, message: Message): RichEmbed =
   let finalEmbed: RichEmbed = new RichEmbed()
     .setColor(3447003)
     .setAuthor(message.client.user.username, message.client.user.avatarURL)
-    .setTitle("Here's a list of all my commands")
-    .setDescription(`You can send \`${SETTINGS.prefix}help <command name>\` to get info on a specific command.`)
+    .setTitle(__("command.help.embed.title:Here's a list of all my commands"))
+    .setDescription(__("command.help.embed.description:You can send `%shelp <command name>` to get info on a specific command.", SETTINGS.prefix))
     .setTimestamp(new Date())
     .setFooter("InnovaBot " + process.env.npm_package_version, message.client.user.avatarURL);
 
@@ -80,21 +81,21 @@ const getCmdsEmbed = (cmds: Collection<any, any>, message: Message): RichEmbed =
 };
 
 const showCommandDetails = async (message: Message, args: string[]) => {
-  const cmds: Collection<any,any> = CommandService.getInstance().commands;
+  const cmds: Collection<any, any> = CommandService.getInstance().commands;
   const name: string = args[0].toLowerCase();
   const command: Command = cmds.get(name) || cmds.find(cmd => cmd.aliases && cmd.aliases.includes(name));
 
   if (!command) {
-    return message.reply("That's not a valid command!");
+    return message.reply(__("That's not a valid command"));
   }
 
   // tslint:disable-next-line:prefer-const
   let data: string[] = [];
-  data.push(`**Name:** ${command.name}`);
-  if (command.aliases) data.push(`**Aliases:** ${command.aliases.join(', ')}`);
-  if (command.description) data.push(`**Description:** ${command.description}`);
-  data.push(`**Category:** ${command.category}`);
-  if (command.usage) data.push(`**Usage:** ${SETTINGS.prefix}${command.name} ${command.usage}`);
+  data.push(`**${__('Name')}:** ${command.name}`);
+  if (command.aliases) data.push(`**${__('Aliases')}:** ${command.aliases.join(', ')}`);
+  if (command.description) data.push(`**${__('Description')}:** ${command.description}`);
+  data.push(`**${__('Category')}:** ${command.category}`);
+  if (command.usage) data.push(`**${__('Usage')}:** ${SETTINGS.prefix}${command.name} ${command.usage}`);
 
   message.channel.send(data, { split: true });
 };

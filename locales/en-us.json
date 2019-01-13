@@ -1,0 +1,40 @@
+{
+	"Log level set to %s": "Log level set to %s",
+	"Starting bot...": "Starting bot...",
+	"Command '%s' loaded": "Command '%s' loaded",
+	"Connecting..": "Connecting..",
+	"Connected!": "Connected!",
+	"Logged in as %s": "Logged in as %s",
+	"You didn't provide any arguments, %s!": "You didn't provide any arguments, %s!",
+	"Usage": "Usage",
+	"Triggered from the message '{{msg}}' by {{author}}": "Triggered from the message '{{msg}}' by {{author}}",
+	"Unknown error": "Unknown error",
+	"Command's list": "Command's list",
+	"command": {
+		"help": {
+			"description": "List all of the commands or info about a specific command.",
+			"embed": {
+				"title": "Here's a list of all my commands",
+				"description": "You can send `%shelp <command name>` to get info on a specific command."
+			}
+		},
+		"np": {
+			"description": "Shows what song is currently playing."
+		},
+		"ping": {
+			"description": "Ping!"
+		},
+		"play": {
+			"description": "Streams a song inside a guild's channel."
+		},
+		"shutdown": {
+			"description": "Safely shuts down the bot."
+		},
+		"stop": {
+			"description": "Stops a song played by another command."
+		},
+		"volume": {
+			"description": "Change the volume of the player."
+		}
+	}
+}

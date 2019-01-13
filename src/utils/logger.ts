@@ -1,4 +1,5 @@
 import fs = require('fs');
+import { __ } from 'i18n';
 
 const { createLogger, format, transports } = require('winston');
 require('winston-daily-rotate-file');
@@ -55,5 +56,5 @@ export const logVerbose = (text: string, data?: any) => logger
 export const setLogLevel = (level: string) => {
   // Object.keys(transports).forEach(key => transports[key].level = level);
   transportsData.console.level = level;
-  logInfo('Log level set to ' + level);
+  logInfo(__('Log level set to %s', level));
 };

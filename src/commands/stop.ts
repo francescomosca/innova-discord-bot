@@ -2,10 +2,11 @@ import { Message } from 'discord.js';
 
 import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
+import { __ } from 'i18n';
 
 const cmd: Command = {
   name: 'stop',
-  description: 'Stops a song played by another command.',
+  description: __("command.stop.description"),
   category: 'music',
   args: false,
   async execute(message: Message, args?: string[]): Promise<any> {

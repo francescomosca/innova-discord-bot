@@ -7,6 +7,7 @@ import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
 import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 import { setBotActivity } from './utils/bot-activity';
+import { __ } from 'i18n';
 
 /**
  * Main class of the Discord Bot.
@@ -34,7 +35,7 @@ export class DiscordBot {
 		
 		`);
 		setLogLevel(this._config.logLevel);
-		logInfo('Starting bot...');
+		logInfo(__('Starting bot...'));
 		this._commandServ.getCommands();
 		this._start();
 	}
@@ -44,8 +45,8 @@ export class DiscordBot {
 		// => Bot is ready...
 		this._client.on('ready', () => {
 			this._loading.stop(true);
-			logInfo(`Connected!`);
-			logInfo(`Logged in as ${this._client.user.tag}`);
+			logInfo(__("Connected!"));
+			logInfo(__(`Logged in as %s`, this._client.user.tag));
 
 			// sets the text under the bot's name
 			setBotActivity(this._client.user);
@@ -57,11 +58,11 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._commandServ.handleCommand(message)
-					.then(cmd => { })
+					.then(_cmd => { })
 					.catch(err => new ErrorHandler(message).byError(err));
 			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
-						message.reply('Ciao umano!');
+						message.reply(__('Hi human!'));
 				}
 			} */
 		});
@@ -95,7 +96,7 @@ export class DiscordBot {
 			logError('Uncaught Promise error: \n' + err.stack);
 		});
 
-		this._loading = new Spinner('Connecting..');
+		this._loading = new Spinner(__('Connecting..'));
 		this._loading.start();
 
 		// => Login

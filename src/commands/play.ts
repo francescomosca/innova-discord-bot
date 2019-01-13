@@ -3,12 +3,13 @@ import { Message } from 'discord.js';
 import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
 import { logDebug } from '../utils/logger';
+import { __ } from 'i18n';
 // import { Command } from './../models/command';
 
 const cmd: Command = {
   name: 'play',
   aliases: ['stream'],
-  description: 'Streams a song inside a guild\'s channel.',
+  description: __("command.play.description"),
   category: 'music',
   args: true,
   usage: '<youtube url | query string>',

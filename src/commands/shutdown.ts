@@ -1,10 +1,11 @@
 import { ErrorHandler } from './../errorhandler';
 import { Message } from 'discord.js';
 import { Command } from '../models/command';
+import { __ } from 'i18n';
 
 const cmd: Command = {
   name: 'shutdown',
-  description: 'Safely shuts down the bot',
+  description: __("command.shutdown.description"),
   args: false,
   category: "admin",
   async execute(message: Message, /* , _args?: string[] */) {

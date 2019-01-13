@@ -2,10 +2,11 @@ import { Message } from 'discord.js';
 
 import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
+import { __ } from 'i18n';
 
 const cmd: Command = {
   name: 'volume',
-  description: 'Change the volume of the player.',
+  description: __("command.volume.description"),
   category: 'music',
   args: true,
   usage: '1-150',

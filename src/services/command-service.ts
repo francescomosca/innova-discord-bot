@@ -4,6 +4,7 @@ import fs = require('fs');
 import path = require('path');
 import { Command } from "../models/command";
 import { cmdUtils } from '../utils/cmd-utils';
+import { __ } from 'i18n';
 
 export class CommandService {
   private static _instance: CommandService;
@@ -38,14 +39,15 @@ export class CommandService {
 			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
 			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
 			this._commands.set(cmdFile.name, cmdFile);
-			logVerbose(`[${count}/${cmdFiles.length}] Command '${cmdFile.name}' loaded`, cmdFile);
+			logVerbose(`[${count}/${cmdFiles.length}] ${__("Command '%s' loaded", cmdFile.name)}`, cmdFile);
 			count++;
 		}
-		logDebug(`List of commands: ${this._commands}`);
+		logDebug(`${__("Command's list")}: ${this._commands}`);
   }
 
   public async handleCommand(cmdMessage: Message): Promise<any> {
-		logDebug(`Triggered from the message: "${cmdMessage.content}" by ${cmdMessage.author}`);
+		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`, 
+		{ msg: cmdMessage.content, author: "" + cmdMessage.author.tag }));
 
 		// subtract the command and the args
 		const args: string[] = cmdUtils.command.getArgs(cmdMessage);

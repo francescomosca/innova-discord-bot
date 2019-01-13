@@ -10,18 +10,19 @@ module.exports.settings = {
   /** The name of your bot */
   botName: 'InnovaBot',
 
-  /** No description */
+  /** The Discord Token */
   token: 'BOT_TOKEN',
 
+  /** Your YouTube API Key */
   youtubeKey: 'YOUTUBE_KEY',
 
-  /** No description */
+  /** The command's prefix */
   prefix: '!',
 
-  /** No description */
+  /** The default message under the bot */
   defaultActivity: '> !play',
 
-  /** No description */
+  /** The language of the bot */
   language: 'en-us',
 
   /** No description

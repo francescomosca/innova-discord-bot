@@ -2,10 +2,11 @@ import { Message } from 'discord.js';
 
 import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
+import { __ } from 'i18n';
 
 const cmd: Command = {
   name: 'np',
-  description: 'Show what song is currently playing.',
+  description: __("command.np.description"),
   category: 'music',
   aliases: ['nowplaying', 'song'],
   args: false,
