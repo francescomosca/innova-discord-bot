@@ -44,21 +44,21 @@ export class CommandService {
 		logDebug(`List of commands: ${this._commands}`);
   }
 
-  public async handleCommand(message: Message): Promise<any> {
-		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
+  public async handleCommand(cmdMessage: Message): Promise<any> {
+		logDebug(`Triggered from the message: "${cmdMessage.content}" by ${cmdMessage.author}`);
 
 		// subtract the command and the args
-		const args: string[] = cmdUtils.command.getArgs(message);
+		const args: string[] = cmdUtils.command.getArgs(cmdMessage);
 		const commandName: string = args.shift().toLowerCase();
 
 		// check if the command exist
 		return cmdUtils.command.exists(commandName, this.commands)
 			.then(async (cmd: Command) => {
 				await cmdUtils.command.checkArgsNeeded(cmd, args);
-				await cmdUtils.user.hasPermission(cmd, message);
+				await cmdUtils.user.hasPermission(cmd, cmdMessage);
 
 				try {
-					await cmd.execute(message, args);
+					await cmd.execute(cmdMessage, args);
 					return Promise.resolve(cmd);
 				} catch (err) {
 					logError(err);

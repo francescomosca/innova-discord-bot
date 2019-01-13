@@ -1,4 +1,4 @@
-import { Message, RichEmbed, StreamDispatcher, VoiceChannel, MessageReaction, Client } from 'discord.js';
+import { Message, RichEmbed, StreamDispatcher, VoiceChannel, Client, ColorResolvable } from 'discord.js';
 // import { Pully, Presets, DownloadResults } from 'pully';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
@@ -39,7 +39,7 @@ export class MusicService {
 
   public resetCurrentSongData = () => this._currentSongData = null;
 
-  public playFromYoutube = async (arg: string = '', voiceChannel: VoiceChannel, message: Message): Promise<any> => {
+  public playFromYoutube = async (arg: string = '', voiceChannel: VoiceChannel, playCmdMessage: Message): Promise<any> => {
     logDebug('ricevuto urlOrText: ' + arg);
 
     return this.searchFromYoutube(arg).then(
@@ -62,15 +62,15 @@ export class MusicService {
             this._player = connection.playStream(stream);
 
             this._currentSongData = queryObj;
-            this.playingEmbed(message).then(this.handleReacts)
+            this.playingEmbed(playCmdMessage).then(this.handleReacts)
               .catch(err => Promise.reject(err));
 
-            setBotActivity(message, `🎶 ${this._currentSongData.title}`);
+            setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
 
             this._player.on('end', () => {
               this._player = null;
-              this.handleReacts(message);
-              setBotActivity(message, "default");
+              this.handleReacts(playCmdMessage, true);
+              setBotActivity(playCmdMessage, "default");
               // this._currentSongData = null;
               voiceChannel.leave();
             });
@@ -81,13 +81,13 @@ export class MusicService {
               // this._currentSongData = null;
               voiceChannel.leave();
             }
-            setBotActivity(message, "default");
-            new ErrorHandler(message).byString(err); // ?
+            setBotActivity(playCmdMessage, "default");
+            new ErrorHandler(playCmdMessage).byString(err); // ?
           });
         } else logWarn('---- non è un url?');
       })
       .catch(err => {
-        new ErrorHandler(message).byError(err); // ?
+        new ErrorHandler(playCmdMessage).byError(err); // ?
       });
   }
 
@@ -103,28 +103,28 @@ export class MusicService {
     }
   }
 
-  playingEmbed = async (message: Message): Promise<Message | Message[]> => {
+  playingEmbed = async (playCmdMessage: Message): Promise<Message | Message[]> => {
     const data = this._currentSongData;
     if (!data) return;
     const embed: RichEmbed = new RichEmbed()
-      .setColor(3447003)
+      .setColor(<ColorResolvable>27808)
       // .setAuthor(message.client.user.username, message.client.user.avatarURL)
       .setTitle("🎶 Now Playing      ")
       .setDescription(`[${data.title}](${data.url})`)
       .setThumbnail(data.thumbnails.medium.url)
       .setTimestamp(new Date())
-      .setFooter(message.client.user.username + ' v' + process.env.npm_package_version);
-    return message.channel.send({ embed: embed });
+      .setFooter(playCmdMessage.client.user.username + ' v' + process.env.npm_package_version);
+    return playCmdMessage.channel.send({ embed: embed });
   }
 
   /**
    * 
-   * @param  {Message} message
+   * @param  {Message} npMessage
    * @param  {boolean} fromSelf?
    * @returns Promise
    * @todo Gestire confusione tra il messaggio embed e quello dell'utente
    */
-  handleReacts = async (message: Message, fromSelf?: boolean): Promise<any> => {
+  handleReacts = async (npMessage: Message, fromSelf?: boolean): Promise<any> => {
     logDebug('entrato in handleReacts');
     /* const musicReacts: Array<{ name: string, emoji: string }> = [
       { name: 'pause', emoji: '⏸' },
@@ -140,36 +140,36 @@ export class MusicService {
     }; */
 
     try {
-      await message.clearReactions();
+      await npMessage.clearReactions();
       if (!this._player) {
-        message.client.removeAllListeners('messageReactionAdd');
-        message.deletable ? message.delete() : logWarn('Can\'t delete now playing message');
+        npMessage.client.removeAllListeners('messageReactionAdd');
+        npMessage.deletable ? npMessage.delete() : logWarn('Can\'t delete now playing message');
         return;
       } else logDebug('player: ' + this._player);
 
       if (!fromSelf) {
         logDebug('ASCOLTO ON messageReactionAdd');
-        this._reactsListener = message.client.on('messageReactionAdd', async (reaction, user) => {
+        this._reactsListener = npMessage.client.on('messageReactionAdd', async (reaction, user) => {
           logDebug(`${user.username} reacted with "${reaction.emoji.name}".`);
-          if (user.id == message.author.id) return;
+          if (user.id == npMessage.author.id) return;
           try {
             switch (reaction.emoji.name) {
               case '⏸': {
                 this.player.pause();
-                this.handleReacts(message, true);
+                this.handleReacts(npMessage, true);
                 break;
               }
               case '▶': {
                 this.player.resume();
-                this.handleReacts(message, true);
+                this.handleReacts(npMessage, true);
                 break;
               }
               case '⏹': {
                 if (!this.player) return;
                 this.player.end('Stopped from reaction');
-                message.channel.send(`Song \`${this._currentSongData.title}\` stopped.`)
+                npMessage.channel.send(`Song \`${this._currentSongData.title}\` stopped.`)
                   .then(() => this.resetCurrentSongData());
-                this.handleReacts(message, true);
+                this.handleReacts(npMessage, true);
                 break;
               }
               default:
@@ -181,9 +181,9 @@ export class MusicService {
         });
       }
 
-      if (!this._player.paused) await message.react('⏸');
-      else await message.react('▶');
-      await message.react('⏹');
+      if (!this._player.paused) await npMessage.react('⏸');
+      else await npMessage.react('▶');
+      await npMessage.react('⏹');
 
     } catch (err) {
       return Promise.reject(err);

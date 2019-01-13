@@ -2,7 +2,7 @@ import { Message } from 'discord.js';
 
 import { SETTINGS } from '../config/settings.js';
 import { Command } from './models/command';
-import { logError, logDebug } from './utils/logger';
+import { logError } from './utils/logger';
 
 export class ErrorHandler {
 
@@ -21,6 +21,7 @@ export class ErrorHandler {
       data = { errCode: err };
     } else data = err;
 
+    logError(`code: ${data.errCode}`);
     switch (data.errCode) {
       case 'args_needed':
         reply = `You didn't provide any arguments, ${message.author}!`;
@@ -30,19 +31,16 @@ export class ErrorHandler {
         message.channel.send(reply);
         break;
       case 'command_error':
-        logError(`code: ${err}`);
+        
         message.channel.send('There was an error trying to execute that command!');
         break;
       case 'no_command':
-        logDebug(`code: ${err}`);
-        message.channel.send(`There is no command with that name, ${message.author}`);
+        // message.channel.send(`There is no command with that name, ${message.author}`);
         break;
       case 'no_permission':
-        logDebug(`code: ${err}`);
         message.channel.send(`You don't have the permission to do that, ${message.author}`);
         break;
       case 'yt_not_found':
-        logDebug(`code: ${err}`);
         message.channel.send(`No video found for that query`);
         break;
       default: // e case '?'

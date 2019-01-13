@@ -25,8 +25,9 @@ Launch the project with live reload:
 
 ## Todo
 - [ ] Docker setup
+- [ ] Localization
+- [ ] Sanity check for configs
 - [ ] Testing
-- [ ] Make this bot useful (?)
 
 ## Credits
 
