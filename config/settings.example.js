@@ -13,6 +13,8 @@ module.exports.settings = {
   /** No description */
   token: 'BOT_TOKEN',
 
+  youtubeKey: 'YOUTUBE_KEY',
+
   /** No description */
   prefix: '!',
 
@@ -26,5 +28,11 @@ module.exports.settings = {
    * 
    * `error,warn,info,verbose,debug,silly`
    */
-  logLevel: 'info'
+  logLevel: 'info',
+
+  /** No description
+   * 
+   * `highestaudio,lowestaudio`
+   */
+  musicQuality: 'highestaudio'
 };

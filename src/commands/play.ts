@@ -1,8 +1,6 @@
 import { Message } from 'discord.js';
-import ytdl = require('ytdl-core');
 
-import { SETTINGS } from '../../config/settings.js';
-import { ErrorHandler } from '../errorhandler';
+import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
 import { logDebug } from '../utils/logger';
 // import { Command } from './../models/command';
@@ -13,8 +11,9 @@ const cmd: Command = {
   category: 'music',
   args: true,
   usage: '<youtube song url>',
-  async execute(message: Message, args: string[]) {
-    logDebug('play args: ' + args.join(', '));
+  async execute(message: Message, args: string[]): Promise<any> {
+    const cleanArg = args.join(' ');
+    logDebug('play args: ' + cleanArg);
     // Ignore messages that aren't from a guild
     if (!message.guild) return;
 
@@ -22,20 +21,8 @@ const cmd: Command = {
 
     if (!voiceChannel) return message.reply('please join a voice channel first!');
 
-    voiceChannel.join().then(connection => {
-      logDebug('musicQuality: ' + SETTINGS.musicQuality);
-      const stream = ytdl(args[0], {
-        quality: SETTINGS.musicQuality,
-        lang: 'it'
-      });
-      const dispatcher = connection.playStream(stream);
-
-      dispatcher.on('end', () => voiceChannel.leave());
-    }).catch(err => {
-      if (voiceChannel.speakable) voiceChannel.leave();
-      return new ErrorHandler(message).byString(err);
-    });
-
+    return MusicService.getInstance().playFromYoutube(cleanArg, voiceChannel, message)
+      .catch(err => Promise.reject(err));
   },
 };
 

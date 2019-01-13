@@ -41,6 +41,10 @@ export class ErrorHandler {
         logDebug(`code: ${err}`);
         message.channel.send(`You don't have the permission to do that, ${message.author}`);
         break;
+      case 'yt_not_found':
+        logDebug(`code: ${err}`);
+        message.channel.send(`No video found for that query`);
+        break;
       default: // e case '?'
         reply = 'Unknown error';
         if (data.errMessage) reply += `: ${data.errMessage}`;
@@ -53,7 +57,9 @@ export class ErrorHandler {
 
     if (String(errString).trim().startsWith('Error: No video id found:')) {
       message.channel.send(`No video id found. You probably sent a wrong url, ${message.author}`);
-    } // else if
+    } else {
+      
+    }
 
   }
 }

@@ -82,7 +82,7 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._handleCommand(message)
-					.then(cmd => logDebug(`Command ${SETTINGS.prefix}${cmd.name} executed successfully`))
+					.then(cmd => {})
 					.catch(err => new ErrorHandler(message).byError(err));
 			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
@@ -108,6 +108,7 @@ export class DiscordBot {
 		process.on('exit', () => {
 			this._loading.stop(true);
 			logVerbose(`Process exit.`);
+			// @todo uscire dal canale vocale prima della chiusura
 			this._client.destroy();
 		});
 		process.on('uncaughtException', (err: Error) => {
