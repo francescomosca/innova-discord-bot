@@ -1,17 +1,20 @@
-import { Message, StreamDispatcher, VoiceChannel, RichEmbed } from 'discord.js';
+import { Message, RichEmbed, StreamDispatcher, VoiceChannel } from 'discord.js';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { SETTINGS } from '../../config/settings.js';
 import { ErrorHandler } from '../errorhandler';
-import { logDebug, logWarn } from '../utils/logger';
 import { YtQuery } from '../models/yt-query.js';
+import { logDebug, logWarn } from '../utils/logger';
+import { BotSettings } from './../models/bot-settings';
 
 export class MusicService {
   private static _instance: MusicService;
 
   private _player: StreamDispatcher;
   private _currentSongData: YtQuery;
+  
+  private _config: BotSettings = SETTINGS;
 
   private constructor() { }
 
@@ -61,8 +64,11 @@ export class MusicService {
             this._currentSongData = queryObj;
             this.playingEmbed(message);
 
+            message.client.user.setActivity("🎶 " + this._currentSongData.title, { type: "LISTENING" });
+
             this._player.on('end', () => {
               this._player = null;
+              message.client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
               // this._currentSongData = null;
               voiceChannel.leave();
             });
@@ -70,6 +76,7 @@ export class MusicService {
           }).catch(err => {
             if (voiceChannel.speakable) {
               this._player = null;
+              message.client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
               // this._currentSongData = null;
               voiceChannel.leave();
             }
@@ -96,6 +103,7 @@ export class MusicService {
 
   async playingEmbed(message: Message): Promise<Message | Message[]> {
     const data = this._currentSongData;
+    if (!data) return;
     const embed: RichEmbed = new RichEmbed()
       .setColor(3447003)
       .setAuthor(message.client.user.username, message.client.user.avatarURL)

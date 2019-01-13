@@ -23,5 +23,5 @@ export interface YtQuery extends Object {
     }
   };
   channelTitle: string;
-  liveBroadcastContent: 'none';
+  liveBroadcastContent: string;
 }

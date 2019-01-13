@@ -23,7 +23,7 @@ const cmd: Command = {
       const oldVol = musicService.player.volume * 100;
       newVol = newVol / 100;
       musicService.player.setVolume(newVol);
-      return message.channel.send(`Volume changed from \`${oldVol}\` to \`${newVol * 100}\`.`)
+      return message.channel.send(`🔊 Volume changed from \`${oldVol}\` to \`${newVol * 100}\`.`)
         .then(() => musicService.resetCurrentSongData());
     } else return message.channel.send('I can\'t change volume while there are no songs playing...');
   },
