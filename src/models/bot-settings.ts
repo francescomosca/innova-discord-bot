@@ -8,10 +8,11 @@ export class BotSettings {
   token: string = 'BOT_TOKEN';
   youtubeKey: string = 'YOUTUBE_KEY';
   prefix: string = '!';
-  defaultActivity: string = '> Use !ping';
+  defaultActivity: string = '> !play';
   language: string = 'en-us';
   logLevel: string = 'info';
   musicQuality: BotSettings.MusicQuality = 'highestaudio';
+  helpInDm: boolean = false;
 }
 
 export namespace BotSettings {

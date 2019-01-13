@@ -34,5 +34,8 @@ module.exports.settings = {
    * 
    * `highestaudio,lowestaudio`
    */
-  musicQuality: 'highestaudio'
+  musicQuality: 'highestaudio',
+
+  /** No description */
+  helpInDm: false
 };

@@ -29,9 +29,10 @@ const showCommandList = async (message: Message) => {
   const categories = Object.keys(Command.category);
   logDebug("command categories: " + categories.join(', '));
 
-  const helpMsg: RichEmbed = getCmdsList(cmds, message);
+  const helpMsg: RichEmbed = getCmdsEmbed(cmds, message);
 
-  return message.author.send({ embed: helpMsg })
+  if (SETTINGS.helpInDm) {
+    return message.author.send({ embed: helpMsg })
     .then(() => {
       if (message.channel.type === 'dm') return;
       message.reply("I\'ve sent you a DM with all my commands!").then(
@@ -43,9 +44,17 @@ const showCommandList = async (message: Message) => {
       console.error(error);
       message.reply("it seems like I can't DM you! Do you have DMs disabled?");
     });
+  } else {
+    return message.channel.send({ embed: helpMsg })
+    .then(() => { })
+    .catch(error => {
+      logError(`Could not send help to ${message.author.tag}.\n` + error);
+      console.error(error);
+    });
+  }
 };
 
-const getCmdsList = (cmds: Collection<any, any>, message: Message): RichEmbed => {
+const getCmdsEmbed = (cmds: Collection<any, any>, message: Message): RichEmbed => {
   // tslint:disable-next-line:prefer-const
   let finalEmbed: RichEmbed = new RichEmbed()
     .setColor(3447003)
@@ -67,7 +76,6 @@ const getCmdsList = (cmds: Collection<any, any>, message: Message): RichEmbed =>
 
     }
   }
-  console.debug(finalEmbed);
   return finalEmbed;
 };
 
