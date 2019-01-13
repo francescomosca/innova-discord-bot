@@ -25,6 +25,7 @@ Launch the project with live reload:
 
 ## Todo
 - [ ] Docker setup
+- [ ] Testing
 - [ ] Make this bot useful (?)
 
 ## Credits

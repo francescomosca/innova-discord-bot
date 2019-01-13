@@ -17,7 +17,7 @@ const cmd: Command = {
     const musicService = MusicService.getInstance();
     if (musicService.player) {
       musicService.player.end('Stopped from command');
-      return message.channel.send(`Song \`${musicService.currentSongData.title}\` stopped.`)
+      return message.channel.send(`🎶 Song \`${musicService.currentSongData.title}\` stopped.`)
         .then(() => musicService.resetCurrentSongData());
     } else return message.channel.send('There is no music to stop...');
   },

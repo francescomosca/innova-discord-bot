@@ -1,11 +1,13 @@
-import { Message, RichEmbed, StreamDispatcher, VoiceChannel } from 'discord.js';
+import { Message, RichEmbed, StreamDispatcher, VoiceChannel, MessageReaction, Client } from 'discord.js';
+// import { Pully, Presets, DownloadResults } from 'pully';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { SETTINGS } from '../../config/settings.js';
 import { ErrorHandler } from '../errorhandler';
 import { YtQuery } from '../models/yt-query.js';
-import { logDebug, logWarn } from '../utils/logger';
+import { setBotActivity } from '../utils/bot-activity';
+import { logDebug, logWarn, logVerbose } from '../utils/logger';
 import { BotSettings } from './../models/bot-settings';
 
 export class MusicService {
@@ -13,7 +15,8 @@ export class MusicService {
 
   private _player: StreamDispatcher;
   private _currentSongData: YtQuery;
-  
+  private _reactsListener: Client;
+
   private _config: BotSettings = SETTINGS;
 
   private constructor() { }
@@ -36,12 +39,7 @@ export class MusicService {
 
   public resetCurrentSongData = () => this._currentSongData = null;
 
-  public playFromYoutube = async (
-    arg: string = '',
-    voiceChannel: VoiceChannel,
-    message: Message,
-  ): Promise<any> => {
-
+  public playFromYoutube = async (arg: string = '', voiceChannel: VoiceChannel, message: Message): Promise<any> => {
     logDebug('ricevuto urlOrText: ' + arg);
 
     return this.searchFromYoutube(arg).then(
@@ -53,22 +51,26 @@ export class MusicService {
 
           if (voiceChannel.speakable) voiceChannel.leave();
 
-          voiceChannel.join().then(connection => {
+          voiceChannel.join().then(async connection => {
             logDebug('musicQuality: ' + SETTINGS.musicQuality);
-            const stream = ytdl(ytUrl, {
-              quality: SETTINGS.musicQuality,
-              lang: 'it'
-            });
+            const ytdlOptions: ytdl.downloadOptions = {
+              quality: SETTINGS.musicQuality
+            };
+
+            const stream = ytdl(ytUrl, ytdlOptions);
+            // this._player = connection.playFile(media.path);
             this._player = connection.playStream(stream);
 
             this._currentSongData = queryObj;
-            this.playingEmbed(message);
+            this.playingEmbed(message).then(this.handleReacts)
+              .catch(err => Promise.reject(err));
 
-            message.client.user.setActivity("🎶 " + this._currentSongData.title, { type: "LISTENING" });
+            setBotActivity(message, `🎶 ${this._currentSongData.title}`);
 
             this._player.on('end', () => {
               this._player = null;
-              message.client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
+              this.handleReacts(message);
+              setBotActivity(message, "default");
               // this._currentSongData = null;
               voiceChannel.leave();
             });
@@ -76,10 +78,10 @@ export class MusicService {
           }).catch(err => {
             if (voiceChannel.speakable) {
               this._player = null;
-              message.client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
               // this._currentSongData = null;
               voiceChannel.leave();
             }
+            setBotActivity(message, "default");
             new ErrorHandler(message).byString(err); // ?
           });
         } else logWarn('---- non è un url?');
@@ -90,7 +92,7 @@ export class MusicService {
   }
 
   async searchFromYoutube(query: string): Promise<string | YtQuery> {
-    const searcher: YTSearcher = new YTSearcher(SETTINGS.youtubeKey);
+    const searcher: YTSearcher = new YTSearcher(this._config.youtubeKey);
     try {
       const queryResult = await searcher.search(query, { 'maxResults': '1' });
       console.log(queryResult.first);
@@ -101,18 +103,92 @@ export class MusicService {
     }
   }
 
-  async playingEmbed(message: Message): Promise<Message | Message[]> {
+  playingEmbed = async (message: Message): Promise<Message | Message[]> => {
     const data = this._currentSongData;
     if (!data) return;
     const embed: RichEmbed = new RichEmbed()
       .setColor(3447003)
-      .setAuthor(message.client.user.username, message.client.user.avatarURL)
-      .setTitle("🎶 Now Playing     ")
+      // .setAuthor(message.client.user.username, message.client.user.avatarURL)
+      .setTitle("🎶 Now Playing      ")
       .setDescription(`[${data.title}](${data.url})`)
       .setThumbnail(data.thumbnails.medium.url)
       .setTimestamp(new Date())
-      .setFooter(data.channelTitle);
+      .setFooter(message.client.user.username + ' v' + process.env.npm_package_version);
     return message.channel.send({ embed: embed });
+  }
+
+  /**
+   * 
+   * @param  {Message} message
+   * @param  {boolean} fromSelf?
+   * @returns Promise
+   * @todo Gestire confusione tra il messaggio embed e quello dell'utente
+   */
+  handleReacts = async (message: Message, fromSelf?: boolean): Promise<any> => {
+    logDebug('entrato in handleReacts');
+    /* const musicReacts: Array<{ name: string, emoji: string }> = [
+      { name: 'pause', emoji: '⏸' },
+      { name: 'resume', emoji: '▶' },
+      { name: 'stop', emoji: '⏹' }
+    ];
+    
+    const awaitFilter = (reaction, user) => {
+      // tslint:disable-next-line:prefer-const
+      let emojis: string[] = [];
+      musicReacts.forEach(react => emojis.push(react.emoji));
+      return emojis.includes(reaction.emoji.name) && user.id === message.author.id;
+    }; */
+
+    try {
+      await message.clearReactions();
+      if (!this._player) {
+        message.client.removeAllListeners('messageReactionAdd');
+        message.deletable ? message.delete() : logWarn('Can\'t delete now playing message');
+        return;
+      } else logDebug('player: ' + this._player);
+
+      if (!fromSelf) {
+        logDebug('ASCOLTO ON messageReactionAdd');
+        this._reactsListener = message.client.on('messageReactionAdd', async (reaction, user) => {
+          logDebug(`${user.username} reacted with "${reaction.emoji.name}".`);
+          if (user.id == message.author.id) return;
+          try {
+            switch (reaction.emoji.name) {
+              case '⏸': {
+                this.player.pause();
+                this.handleReacts(message, true);
+                break;
+              }
+              case '▶': {
+                this.player.resume();
+                this.handleReacts(message, true);
+                break;
+              }
+              case '⏹': {
+                if (!this.player) return;
+                this.player.end('Stopped from reaction');
+                message.channel.send(`Song \`${this._currentSongData.title}\` stopped.`)
+                  .then(() => this.resetCurrentSongData());
+                this.handleReacts(message, true);
+                break;
+              }
+              default:
+                return;
+            }
+          } catch (err) {
+            logVerbose(err);
+          }
+        });
+      }
+
+      if (!this._player.paused) await message.react('⏸');
+      else await message.react('▶');
+      await message.react('⏹');
+
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
   }
 
 }

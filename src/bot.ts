@@ -6,6 +6,7 @@ import { SETTINGS } from '../config/settings.js';
 import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
 import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
+import { setBotActivity } from './utils/bot-activity';
 
 /**
  * Main class of the Discord Bot.
@@ -32,8 +33,8 @@ export class DiscordBot {
 		
 		
 		`);
-		logInfo('Starting bot...');
 		setLogLevel(this._config.logLevel);
+		logInfo('Starting bot...');
 		this._commandServ.getCommands();
 		this._start();
 	}
@@ -47,7 +48,7 @@ export class DiscordBot {
 			logInfo(`Logged in as ${this._client.user.tag}`);
 
 			// sets the text under the bot's name
-			this._client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
+			setBotActivity(this._client.user);
 		});
 
 		/*****************************************************/

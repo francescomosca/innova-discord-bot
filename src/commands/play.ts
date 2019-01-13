@@ -7,6 +7,7 @@ import { logDebug } from '../utils/logger';
 
 const cmd: Command = {
   name: 'play',
+  aliases: ['stream'],
   description: 'Streams a song inside a guild\'s channel.',
   category: 'music',
   args: true,
@@ -18,10 +19,16 @@ const cmd: Command = {
     if (!message.guild) return;
 
     const voiceChannel = message.member.voiceChannel;
+    const musicService = MusicService.getInstance();
 
     if (!voiceChannel) return message.reply('please join a voice channel first!');
 
-    return MusicService.getInstance().playFromYoutube(cleanArg, voiceChannel, message)
+    if (musicService.player) {
+      musicService.player.end('Another play command was sent');
+      musicService.handleReacts(message, true);
+    }
+
+    return musicService.playFromYoutube(cleanArg, voiceChannel, message)
       .catch(err => Promise.reject(err));
   },
 };
