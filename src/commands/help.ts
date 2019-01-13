@@ -1,3 +1,4 @@
+import { CommandService } from './../services/command-service';
 import { Message, Collection, RichEmbed } from 'discord.js';
 // import { Command } from './../models/command';
 import { SETTINGS } from '../../config/settings.js';
@@ -24,7 +25,7 @@ const cmd: Command = {
 };
 
 const showCommandList = async (message: Message) => {
-  const cmds = message.client.commands;
+  const cmds = CommandService.getInstance().commands;
   const categories = Object.keys(Command.category);
   logDebug("command categories: " + categories.join(', '));
 
@@ -44,7 +45,7 @@ const showCommandList = async (message: Message) => {
     });
 };
 
-const getCmdsList = (cmds: Collection<string, Command>, message: Message): RichEmbed => {
+const getCmdsList = (cmds: Collection<any, any>, message: Message): RichEmbed => {
   // tslint:disable-next-line:prefer-const
   let finalEmbed: RichEmbed = new RichEmbed()
     .setColor(3447003)
@@ -71,7 +72,7 @@ const getCmdsList = (cmds: Collection<string, Command>, message: Message): RichE
 };
 
 const showCommandDetails = async (message: Message, args: string[]) => {
-  const cmds = message.client.commands;
+  const cmds: Collection<any,any> = CommandService.getInstance().commands;
   const name: string = args[0].toLowerCase();
   const command: Command = cmds.get(name) || cmds.find(cmd => cmd.aliases && cmd.aliases.includes(name));
 

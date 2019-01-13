@@ -1,14 +1,11 @@
-import { Client, Collection, Message } from 'discord.js';
+import { CommandService } from './services/command-service';
+import { Client, Message } from 'discord.js';
 import { Spinner } from 'cli-spinner';
-import fs = require('fs');
-import path = require('path');
 
 import { SETTINGS } from '../config/settings.js';
 import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
-import { Command } from './models/command';
-import { logDebug, logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
-import { cmdUtils } from './utils/cmd-utils';
+import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 
 /**
  * Main class of the Discord Bot.
@@ -19,9 +16,9 @@ export class DiscordBot {
 	private readonly _config: BotSettings; // readonly solo se non si effettuano modifiche real time
 	private _loading: Spinner;
 
+	private _commandServ: CommandService = CommandService.getInstance();
 	constructor() {
 		this._client = new Client();
-		this._client.commands = new Collection(); // public commands: Collection<string, Command>;
 		this._config = SETTINGS;
 	}
 
@@ -35,33 +32,10 @@ export class DiscordBot {
 		
 		
 		`);
-
 		logInfo('Starting bot...');
-
 		setLogLevel(this._config.logLevel);
-
-		this._getCommands();
-
+		this._commandServ.getCommands();
 		this._start();
-	}
-
-	private _getCommands() {
-		// find the commands path relative to the OS
-		const cmdPath = path.resolve(path.dirname(__dirname), './src/commands');
-		logDebug(`cmdPath: ${cmdPath}`);
-
-		// => Searching for commands
-		const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
-		logVerbose('commandFiles: ' + cmdFiles);
-		let count = 1;
-		for (const file of cmdFiles) {
-			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
-			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
-			this._client.commands.set(cmdFile.name, cmdFile);
-			logVerbose(`[${count}/${cmdFiles.length}] Command '${cmdFile.name}' loaded`, cmdFile);
-			count++;
-		}
-		logDebug(`List of commands: ${this._client.commands}`);
 	}
 
 	private _start(): void {
@@ -81,8 +55,8 @@ export class DiscordBot {
 		this._client.on('message', (message: Message) => {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
-				this._handleCommand(message)
-					.then(cmd => {})
+				this._commandServ.handleCommand(message)
+					.then(cmd => { })
 					.catch(err => new ErrorHandler(message).byError(err));
 			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
@@ -129,27 +103,4 @@ export class DiscordBot {
 			.catch(logError);
 	}
 
-	private async _handleCommand(message: Message): Promise<any> {
-		logDebug(`Triggered from the message: "${message.content}" by ${message.author}`);
-
-		// subtract the command and the args
-		const args: string[] = cmdUtils.command.getArgs(message);
-		const commandName: string = args.shift().toLowerCase();
-
-		// check if the command exist
-		return cmdUtils.command.exists(commandName, this._client.commands)
-			.then(async (cmd: Command) => {
-				await cmdUtils.command.checkArgsNeeded(cmd, args);
-				await cmdUtils.user.hasPermission(cmd, message);
-
-				try {
-					await cmd.execute(message, args);
-					return Promise.resolve(cmd);
-				} catch (err) {
-					logError(err);
-					return Promise.reject("command_error");
-				}
-
-			}).catch(err => Promise.reject(err));
-	}
 }

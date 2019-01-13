@@ -13,7 +13,7 @@ export const cmdUtils = {
     },
     /** Check if the command exist */
     exists: async (cmdName: string, cmdList: Collection<string, Command>): Promise<Command> => {
-      const command = cmdList.get(cmdName) || cmdList.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName));
+      const command: Command = cmdList.get(cmdName) || cmdList.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName));
       return command ? Promise.resolve(command) : Promise.reject('no_command');
     },
     /** Throws 'args_needed' if the command need args */
