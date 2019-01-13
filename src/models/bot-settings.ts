@@ -8,7 +8,7 @@ export class BotSettings {
   token: string = 'BOT_TOKEN';
   youtubeKey: string = 'YOUTUBE_KEY';
   prefix: string = '!';
-  activity: string = '> Use !ping';
+  defaultActivity: string = '> Use !ping';
   language: string = 'en-us';
   logLevel: string = 'info';
   musicQuality: BotSettings.MusicQuality = 'highestaudio';

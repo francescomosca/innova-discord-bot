@@ -1,15 +1,17 @@
-import { Message, StreamDispatcher, VoiceChannel } from 'discord.js';
+import { Message, StreamDispatcher, VoiceChannel, RichEmbed } from 'discord.js';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { SETTINGS } from '../../config/settings.js';
 import { ErrorHandler } from '../errorhandler';
-import { logDebug } from '../utils/logger';
+import { logDebug, logWarn } from '../utils/logger';
+import { YtQuery } from '../models/yt-query.js';
 
 export class MusicService {
   private static _instance: MusicService;
 
-  private _streamDispatcher: StreamDispatcher;
+  private _player: StreamDispatcher;
+  private _currentSongData: YtQuery;
 
   private constructor() { }
 
@@ -22,65 +24,87 @@ export class MusicService {
     return MusicService._instance;
   }
 
-  get streamDispatcher(): StreamDispatcher {
-    return this._streamDispatcher;
+  get player(): StreamDispatcher {
+    return this._player;
   }
+  get currentSongData() {
+    return this._currentSongData;
+  }
+
+  public resetCurrentSongData = () => this._currentSongData = null;
 
   public playFromYoutube = async (
-    urlOrText: string = '',
+    arg: string = '',
     voiceChannel: VoiceChannel,
     message: Message,
-    fromSelf?: boolean
   ): Promise<any> => {
-    if (voiceChannel.speakable) voiceChannel.leave();
 
-    logDebug('ricevuto urlOrText: ' + urlOrText);
-    const isYtUrl: boolean = urlOrText.includes('youtu.be/') || urlOrText.includes('youtube.com/');
-    if (isYtUrl) {
-      logDebug('isUrl !');
-      voiceChannel.join().then(connection => {
-        logDebug('musicQuality: ' + SETTINGS.musicQuality);
-        const stream = ytdl(urlOrText, {
-          quality: SETTINGS.musicQuality,
-          lang: 'it'
-        });
-        this._streamDispatcher = connection.playStream(stream);
+    logDebug('ricevuto urlOrText: ' + arg);
 
-        this._streamDispatcher.on('end', () => {
-          this._streamDispatcher = null;
-          voiceChannel.leave();
-        });
-        return Promise.resolve();
-      }).catch(err => {
-        if (voiceChannel.speakable) {
-          this._streamDispatcher = null;
-          voiceChannel.leave();
-        }
-        new ErrorHandler(message).byString(err); // ?
+    return this.searchFromYoutube(arg).then(
+      async (queryObj: YtQuery) => {
+        const ytUrl = queryObj.url;
+        const isYtUrl: boolean = ytUrl.includes('youtu.be/') || ytUrl.includes('youtube.com/');
+        if (isYtUrl) {
+          logDebug('isUrl !');
+
+          if (voiceChannel.speakable) voiceChannel.leave();
+
+          voiceChannel.join().then(connection => {
+            logDebug('musicQuality: ' + SETTINGS.musicQuality);
+            const stream = ytdl(ytUrl, {
+              quality: SETTINGS.musicQuality,
+              lang: 'it'
+            });
+            this._player = connection.playStream(stream);
+
+            this._currentSongData = queryObj;
+            this.playingEmbed(message);
+
+            this._player.on('end', () => {
+              this._player = null;
+              // this._currentSongData = null;
+              voiceChannel.leave();
+            });
+            return Promise.resolve();
+          }).catch(err => {
+            if (voiceChannel.speakable) {
+              this._player = null;
+              // this._currentSongData = null;
+              voiceChannel.leave();
+            }
+            new ErrorHandler(message).byString(err); // ?
+          });
+        } else logWarn('---- non è un url?');
+      })
+      .catch(err => {
+        new ErrorHandler(message).byError(err); // ?
       });
-    } else {
-      logDebug('Not an url, ricerco...');
-      this.searchFromYoutube(urlOrText).then(
-        async url => {
-          return !fromSelf ? this.playFromYoutube(url, voiceChannel, message, true)
-            .catch(err => err)
-            : Promise.reject('yt_not_found');
-        })
-        .catch(err => {
-          new ErrorHandler(message).byError(err); // ?
-        });
-    }
   }
 
-  async searchFromYoutube(query: string): Promise<string> {
+  async searchFromYoutube(query: string): Promise<string | YtQuery> {
     const searcher: YTSearcher = new YTSearcher(SETTINGS.youtubeKey);
     try {
-      const search = await searcher.search(query, { 'maxResults': '1' });
-      if (search && search.first && search.first.url && search.first.url != '') return Promise.resolve(search.first.url);
+      const queryResult = await searcher.search(query, { 'maxResults': '1' });
+      console.log(queryResult.first);
+      if (queryResult && queryResult.first && queryResult.first.url && queryResult.first.url != '') return Promise.resolve(<YtQuery>queryResult.first);
       else return Promise.reject("yt_not_found");
     } catch (err) {
       return Promise.reject(err);
     }
+  }
+
+  async playingEmbed(message: Message): Promise<Message | Message[]> {
+    const data = this._currentSongData;
+    const embed: RichEmbed = new RichEmbed()
+      .setColor(3447003)
+      .setAuthor(message.client.user.username, message.client.user.avatarURL)
+      .setTitle("🎶 Now Playing     ")
+      .setDescription(`[${data.title}](${data.url})`)
+      .setThumbnail(data.thumbnails.medium.url)
+      .setTimestamp(new Date())
+      .setFooter(data.channelTitle);
+    return message.channel.send({ embed: embed });
   }
 
 }

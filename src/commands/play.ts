@@ -10,7 +10,7 @@ const cmd: Command = {
   description: 'Streams a song inside a guild\'s channel.',
   category: 'music',
   args: true,
-  usage: '<youtube song url>',
+  usage: '<youtube url | query string>',
   async execute(message: Message, args: string[]): Promise<any> {
     const cleanArg = args.join(' ');
     logDebug('play args: ' + cleanArg);

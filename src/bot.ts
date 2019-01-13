@@ -73,7 +73,7 @@ export class DiscordBot {
 			logInfo(`Logged in as ${this._client.user.tag}`);
 
 			// sets the text under the bot's name
-			this._client.user.setActivity(this._config.activity);
+			this._client.user.setActivity(this._config.defaultActivity, { type: "LISTENING" });
 		});
 
 		/*****************************************************/

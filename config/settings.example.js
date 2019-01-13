@@ -19,7 +19,7 @@ module.exports.settings = {
   prefix: '!',
 
   /** No description */
-  activity: '> Use !ping',
+  defaultActivity: '> !play',
 
   /** No description */
   language: 'en-us',
