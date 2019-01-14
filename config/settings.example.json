@@ -1,4 +1,4 @@
-module.exports.settings = {
+{
   /*
    *-------------------------------------------*
    *                                           *
@@ -8,35 +8,35 @@ module.exports.settings = {
    */
 
   /** The name of your bot */
-  botName: 'InnovaBot',
+  "botName": "InnovaBot",
 
   /** The Discord Token */
-  token: 'BOT_TOKEN',
+  "token": "BOT_TOKEN",
 
   /** Your YouTube API Key */
-  youtubeKey: 'YOUTUBE_KEY',
+  "youtubeKey": "YOUTUBE_KEY",
 
-  /** The command's prefix */
-  prefix: '!',
+  /** No description */
+  "prefix": "!",
 
-  /** The default message under the bot */
-  defaultActivity: '> !play',
+  /** No description */
+  "defaultActivity": "> !play",
 
-  /** The language of the bot */
-  language: 'en-us',
+  /** No description */
+  "language": "en-us",
 
   /** No description
    * 
    * `error,warn,info,verbose,debug,silly`
    */
-  logLevel: 'info',
+  "logLevel": "info",
 
   /** No description
    * 
    * `highestaudio,lowestaudio`
    */
-  musicQuality: 'highestaudio',
+  "musicQuality": "highestaudio",
 
   /** No description */
-  helpInDm: false
-};
+  "helpInDm": false
+}

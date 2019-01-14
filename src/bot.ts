@@ -2,16 +2,15 @@ import { CommandService } from './services/command-service';
 import { Client, Message } from 'discord.js';
 import { Spinner } from 'cli-spinner';
 
-import { SETTINGS } from '../config/settings.js';
 import { BotSettings } from './models/bot-settings';
 import { ErrorHandler } from './errorhandler';
 import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 import { setBotActivity } from './utils/bot-activity';
 import { __ } from 'i18n';
+import { ConfigService } from './services/config-service';
 
 /**
  * Main class of the Discord Bot.
- * @requires SETTINGS
  */
 export class DiscordBot {
 	private _client: Client;
@@ -21,7 +20,7 @@ export class DiscordBot {
 	private _commandServ: CommandService = CommandService.getInstance();
 	constructor() {
 		this._client = new Client();
-		this._config = SETTINGS;
+		this._config = ConfigService.getInstance().settings;
 	}
 
 	public init(): void {
@@ -102,7 +101,10 @@ export class DiscordBot {
 		// => Login
 		this._client.login(this._config.token)
 			.then(_token => { })
-			.catch(logError);
+			.catch(err => {
+				this._loading.stop();
+				logError(err);
+			});
 	}
 
 }

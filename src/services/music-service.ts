@@ -1,14 +1,13 @@
 import { Message, RichEmbed, StreamDispatcher, VoiceChannel, Client, ColorResolvable } from 'discord.js';
-// import { Pully, Presets, DownloadResults } from 'pully';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
-import { SETTINGS } from '../../config/settings.js';
 import { ErrorHandler } from '../errorhandler';
 import { YtQuery } from '../models/yt-query.js';
 import { setBotActivity } from '../utils/bot-activity';
 import { logDebug, logWarn, logVerbose } from '../utils/logger';
 import { BotSettings } from './../models/bot-settings';
+import { settings } from '../utils/utils';
 
 export class MusicService {
   private static _instance: MusicService;
@@ -17,7 +16,7 @@ export class MusicService {
   private _currentSongData: YtQuery;
   private _reactsListener: Client;
 
-  private _config: BotSettings = SETTINGS;
+  private _config: BotSettings = settings();
 
   private constructor() { }
 
@@ -52,9 +51,9 @@ export class MusicService {
           if (voiceChannel.speakable) voiceChannel.leave();
 
           voiceChannel.join().then(async connection => {
-            logDebug('musicQuality: ' + SETTINGS.musicQuality);
+            logDebug('musicQuality: ' + this._config.musicQuality);
             const ytdlOptions: ytdl.downloadOptions = {
-              quality: SETTINGS.musicQuality
+              quality: this._config.musicQuality
             };
 
             const stream = ytdl(ytUrl, ytdlOptions);

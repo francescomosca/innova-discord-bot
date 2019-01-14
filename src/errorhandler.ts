@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
 
-import { SETTINGS } from '../config/settings.js';
 import { Command } from './models/command';
 import { logError } from './utils/logger';
+import { settings } from './utils/utils';
 import { __ } from 'i18n';
 
 export class ErrorHandler {
@@ -27,7 +27,7 @@ export class ErrorHandler {
       case 'args_needed':
         reply = __(`You didn't provide any arguments, %s!`, "" + message.author);
         if (data.command && data.command.usage) {
-          reply += `\n${__("Usage")}: \`${SETTINGS.prefix}${data.command.name} ${data.command.usage}\``;
+          reply += `\n${__("Usage")}: \`${settings().prefix}${data.command.name} ${data.command.usage}\``;
         }
         message.channel.send(reply);
         break;
@@ -43,6 +43,13 @@ export class ErrorHandler {
         break;
       case 'yt_not_found':
         message.channel.send(__(`No video found for that query`));
+        break;
+      case 'no_config':
+        logError(`
+        ATTENZIONE: 
+        
+        Per avviare il bot è necessario configurare il file "settings.json", che trovi nella cartella config. Ciò è necessario per connettersi a Discord.`);
+        process.exit(0);
         break;
       default: // e case '?'
         reply = __('Unknown error');

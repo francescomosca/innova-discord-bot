@@ -1,9 +1,9 @@
-import { logDebug, logWarn, logError } from './utils/logger';
-import { DiscordBot } from './bot';
+import i18n = require('i18n');
 import path = require('path');
-import i18n = require("i18n");
 
-import { SETTINGS } from '../config/settings.js';
+import { DiscordBot } from './bot';
+import { logDebug, logError, logWarn } from './utils/logger';
+import { settings } from './utils/utils';
 
 i18n.configure({
   locales: ['en-us', 'it-it'],
@@ -13,11 +13,11 @@ i18n.configure({
   preserveLegacyCase: true,
   // register: global,
   // default to require('debug')('i18n:debug')
-  logDebugFn: (msg) => logDebug('i18n: ', msg),
-  logWarnFn: (msg) => logWarn('i18n: ', msg),
-  logErrorFn: (msg) => logError('i18n: ', msg)
+  logDebugFn: (msg) => logDebug('i18n: ' + msg),
+  logWarnFn: (msg) => logWarn('i18n: ' + msg),
+  logErrorFn: (msg) => logError('i18n: ' + msg)
 });
 
 // @todo controllare correttezza dei config, poi:
-i18n.setLocale(SETTINGS.language);
+i18n.setLocale(settings().language);
 new DiscordBot().init();

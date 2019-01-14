@@ -1,10 +1,8 @@
 import { CommandService } from './../services/command-service';
 import { Message, Collection, RichEmbed } from 'discord.js';
-// import { Command } from './../models/command';
-import { SETTINGS } from '../../config/settings.js';
 import { Command } from '../models/command';
 import { logDebug, logError } from '../utils/logger';
-import { stringCapitalize } from '../utils/utils';
+import { stringCapitalize, settings } from '../utils/utils';
 import { __ } from 'i18n';
 
 const cmd: Command = {
@@ -32,7 +30,7 @@ const showCommandList = async (message: Message) => {
 
   const helpMsg: RichEmbed = getCmdsEmbed(cmds, message);
 
-  if (SETTINGS.helpInDm) {
+  if (settings().helpInDm) {
     return message.author.send({ embed: helpMsg })
     .then(() => {
       if (message.channel.type === 'dm') return;
@@ -59,9 +57,9 @@ const getCmdsEmbed = (cmds: Collection<any, any>, message: Message): RichEmbed =
   // tslint:disable-next-line:prefer-const
   let finalEmbed: RichEmbed = new RichEmbed()
     .setColor(3447003)
-    .setAuthor(message.client.user.username, message.client.user.avatarURL)
+    // .setAuthor(message.client.user.username, message.client.user.avatarURL)
     .setTitle(__("command.help.embed.title:Here's a list of all my commands"))
-    .setDescription(__("command.help.embed.description:You can send `%shelp <command name>` to get info on a specific command.", SETTINGS.prefix))
+    .setDescription(__("command.help.embed.description:You can send `%shelp <command name>` to get info on a specific command.", settings().prefix))
     .setTimestamp(new Date())
     .setFooter("InnovaBot " + process.env.npm_package_version, message.client.user.avatarURL);
 
@@ -72,7 +70,7 @@ const getCmdsEmbed = (cmds: Collection<any, any>, message: Message): RichEmbed =
       // logVerbose(`cat: ${cat} | catCommands: ${catCommands.map(x => x.name).join(', ')}`);
       if (catCommands.map(cmd => cmd).length) finalEmbed.addField(
         stringCapitalize(cat),
-        catCommands.map(cmd => `\`${SETTINGS.prefix + cmd.name}\` - *${cmd.description}*`).join('\n')
+        catCommands.map(cmd => `\`${settings().prefix + cmd.name}\` - *${cmd.description}*`).join('\n')
       );
 
     }
@@ -95,7 +93,7 @@ const showCommandDetails = async (message: Message, args: string[]) => {
   if (command.aliases) data.push(`**${__('Aliases')}:** ${command.aliases.join(', ')}`);
   if (command.description) data.push(`**${__('Description')}:** ${command.description}`);
   data.push(`**${__('Category')}:** ${command.category}`);
-  if (command.usage) data.push(`**${__('Usage')}:** ${SETTINGS.prefix}${command.name} ${command.usage}`);
+  if (command.usage) data.push(`**${__('Usage')}:** ${settings().prefix}${command.name} ${command.usage}`);
 
   message.channel.send(data, { split: true });
 };

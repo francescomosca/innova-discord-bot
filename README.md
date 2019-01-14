@@ -8,11 +8,11 @@ Innova Discord Bot
 
 - [Git](https://git-scm.com/downloads)
 - Node.js ([Windows](https://nodejs.org/it/) | [macOS/Linux](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions))
+- windows-build-tools: `npm i -g windows-build-tools`
 
 1. Download the repo: `git clone https://github.com/francescomosca/innova-discord-bot.git`
 2. Go to the project folder: `cd innova-discord-bot`
-3. Install *windows-build-tools*: `npm i -g windows-build-tools`
-4. Install the project packages via the following command: `npm i`
+3. Install the project packages via the following command: `npm i`
 
 ## Usage
 
@@ -23,9 +23,9 @@ Launch the project in development mode and live reload:
 > npm run serve
 
 ## Todo
+- [ ] Sanity check for configs (75%)
+- [ ] Localization (50%)
 - [ ] Docker setup
-- [ ] Localization
-- [ ] Sanity check for configs
 - [ ] Testing
 
 ## Credits

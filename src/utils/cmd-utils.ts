@@ -1,13 +1,13 @@
 import { Message, Collection } from 'discord.js';
 import { Command } from '../models/command';
-import { SETTINGS } from '../../config/settings.js';
 import { logVerbose } from './logger';
+import { settings } from './utils';
 
 export const cmdUtils = {
   command: {
     /** Get the arguments from the message. */
     getArgs: (fromMessage: Message): string[] => {
-      const args = fromMessage.content.slice(SETTINGS.prefix.length).split(/ +/);
+      const args = fromMessage.content.slice(settings().prefix.length).split(/ +/);
       // logVerbose('getArgs data: ' + args.join(', '));
       return args;
     },
