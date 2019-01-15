@@ -1,13 +1,13 @@
-import { CommandService } from './services/command-service';
-import { Client, Message } from 'discord.js';
 import { Spinner } from 'cli-spinner';
-
-import { BotSettings } from './models/bot-settings';
-import { ErrorHandler } from './errorhandler';
-import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
-import { setBotActivity } from './utils/bot-activity';
+import { Client, Message } from 'discord.js';
 import { __ } from 'i18n';
+
+import { ErrorHandler } from './errorhandler';
+import { BotSettings } from './models/bot-settings';
+import { CommandService } from './services/command-service';
 import { ConfigService } from './services/config-service';
+import { setBotActivity } from './utils/bot-activity';
+import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 
 /**
  * Main class of the Discord Bot.

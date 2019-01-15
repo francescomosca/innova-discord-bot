@@ -4,7 +4,7 @@
  * In mancanza di una configurazione, verranno utilizzati i valori di default.
  */
 export class BotSettings {
-  botName: string = 'DiscordBot';
+  botName: string = 'InnovaBot';
   token: string = 'BOT_TOKEN';
   youtubeKey: string = 'YOUTUBE_KEY';
   prefix: string = '!';

@@ -14,6 +14,11 @@ Innova Discord Bot
 2. Go to the project folder: `cd innova-discord-bot`
 3. Install the project packages via the following command: `npm i`
 
+## Configuration
+
+1. `token`: Go to your [application page](https://discordapp.com/developers/applications/me) and get your token by following [this video](https://drive.google.com/file/d/1wZG_TBVfjQfj0CEYaRTzS60D-cbfeeYZ/view).
+2. `youtubeKey`: https://console.cloud.google.com/apis/library/youtube.googleapis.com
+
 ## Usage
 
 Launch the project:

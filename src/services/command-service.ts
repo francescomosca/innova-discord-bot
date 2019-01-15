@@ -26,6 +26,11 @@ export class CommandService {
     return this._commands;
   }
 
+	private _cmdFromTemplate(cmdFile: object): Command {
+		const cmdTpl = new Command();
+		return {...cmdTpl, ...cmdFile}; // come Object.assign ma col ritorno giusto
+	}
+
   getCommands = () => {
 		// find the commands path relative to the OS
 		const cmdPath = path.resolve(path.dirname(__dirname), './commands');
@@ -44,15 +49,10 @@ export class CommandService {
 		}
 		logDebug(`${__("Command's list")}: ${this._commands}`);
 	}
-	
-	private _cmdFromTemplate(cmdFile: object): Command {
-		const cmdTpl = new Command();
-		return {...cmdTpl, ...cmdFile}; // come Object.assign ma col ritorno giusto
-	}
 
   public async handleCommand(cmdMessage: Message): Promise<any> {
 		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`, 
-		{ msg: cmdMessage.content, author: "" + cmdMessage.author.tag }));
+		{ msg: cmdMessage.content, author: cmdMessage.author.tag }));
 
 		// subtract the command and the args
 		const args: string[] = cmdUtils.command.getArgs(cmdMessage);

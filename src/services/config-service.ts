@@ -23,21 +23,23 @@ export class ConfigService {
 	get settings(): BotSettings {
 		if (this._settings) return this._settings;
 
-		const exampleFromClass = JSON.stringify(new BotSettings(), null, 4);
 		const configFolder: string = path.resolve(__dirname, '../', '../', 'config');
-		const exampleConfPath: string = path.resolve(configFolder, "./", "settings.example.json");
-		const confPath: string = path.resolve(configFolder, "./", "settings.json");
-
-		if (!fs.existsSync(configFolder)) {
+		const exampleConfFilePath: string = path.resolve(configFolder, "./", "settings.example.json");
+		const confFilePath: string = path.resolve(configFolder, "./", "settings.json");
+		
+		if (!fs.existsSync(configFolder)) { // se non esiste ./config/
 			logWarn('Cartella config inesistente! Ricreo...');
 			fs.mkdirSync(configFolder);
 		}
-		if (!fs.existsSync(confPath)) {
+		if (!fs.existsSync(confFilePath)) { // se non esiste settings.json
 			try {
-				if (!fs.existsSync(exampleConfPath)) fs.writeFileSync(exampleConfPath, exampleFromClass, { encoding: "utf8" });
-				fs.writeFileSync(confPath, exampleFromClass, { encoding: "utf8" });
+				if (!fs.existsSync(exampleConfFilePath)) { // se non esiste settings.example.json , ricreo l'esempio dal modello e settings.json stesso
+					const initConfig = JSON.stringify(new BotSettings(), null, 4);
+					fs.writeFileSync(exampleConfFilePath, initConfig, { encoding: "utf8" });
+					fs.writeFileSync(confFilePath, initConfig, { encoding: "utf8" });
+				} else fs.copyFileSync(exampleConfFilePath, confFilePath); // se c'è l'esempio, lo copio
+
 				new ErrorHandler().byError('no_config');
-				return new BotSettings();
 			} catch (err) {
 				logError('Non ho potuto copiare "settings.example.json": ' + err);
 			}
