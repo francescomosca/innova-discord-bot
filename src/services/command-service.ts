@@ -38,12 +38,17 @@ export class CommandService {
 		for (const file of cmdFiles) {
 			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
 			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
-			this._commands.set(cmdFile.name, cmdFile);
+			this._commands.set(cmdFile.name, this._cmdFromTemplate(cmdFile));
 			logVerbose(`[${count}/${cmdFiles.length}] ${__("Command '%s' loaded", cmdFile.name)}`, cmdFile);
 			count++;
 		}
 		logDebug(`${__("Command's list")}: ${this._commands}`);
-  }
+	}
+	
+	private _cmdFromTemplate(cmdFile: object): Command {
+		const cmdTpl = new Command();
+		return {...cmdTpl, ...cmdFile}; // come Object.assign ma col ritorno giusto
+	}
 
   public async handleCommand(cmdMessage: Message): Promise<any> {
 		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`, 
@@ -56,6 +61,7 @@ export class CommandService {
 		// check if the command exist
 		return cmdUtils.command.exists(commandName, this.commands)
 			.then(async (cmd: Command) => {
+				await cmdUtils.command.enabled(cmd);
 				await cmdUtils.command.checkArgsNeeded(cmd, args);
 				await cmdUtils.user.hasPermission(cmd, cmdMessage);
 

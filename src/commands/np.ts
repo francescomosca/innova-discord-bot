@@ -5,6 +5,7 @@ import { Command } from '../models/command';
 import { __ } from 'i18n';
 
 const cmd: Command = {
+  enabled: false,
   name: 'np',
   description: __("command.np.description"),
   category: 'music',

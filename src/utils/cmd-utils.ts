@@ -22,6 +22,9 @@ export const cmdUtils = {
       const argsNeeded = command.args && !args.length;
       return argsNeeded ? Promise.reject({ errCode: 'args_needed', command: command }) : Promise.resolve();
     },
+    enabled: (command: Command): Promise<any> => {
+      return command.enabled ? Promise.resolve() : Promise.reject('command_disabled');
+    }
   },
   user: {
     /** Checks if the command needs a permission and the user has that permission. */

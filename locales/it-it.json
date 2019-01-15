@@ -40,5 +40,8 @@
 	"Name": "Nome",
 	"Description": "Descrizione",
 	"Category": "Categoria",
-	"That's not a valid command": "Non è un comando valido"
+	"That's not a valid command": "Questo non è un comando valido",
+	"No video found for that query": "Nessun video trovato per questa ricerca",
+	"Song {{songName}} stopped by {{user}}": "La canzone {{songName}} è stata fermata da {{user}}",
+	"That command is currently disabled.": "Questo comando è al momento disabilitato."
 }

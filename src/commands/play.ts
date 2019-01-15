@@ -26,7 +26,7 @@ const cmd: Command = {
 
     if (musicService.player) {
       musicService.player.end('Another play command was sent');
-      musicService.handleReacts(message, true);
+      musicService.handleReacts(true);
     }
 
     return musicService.playFromYoutube(cleanArg, voiceChannel, message)

@@ -51,6 +51,9 @@ export class ErrorHandler {
         Per avviare il bot è necessario configurare il file "settings.json", che trovi nella cartella config. Ciò è necessario per connettersi a Discord.`);
         process.exit(0);
         break;
+      case 'command_disabled':
+        message.channel.send(__(`That command is currently disabled.`));
+        break;
       default: // e case '?'
         reply = __('Unknown error');
         if (data.errMessage) reply += `: ${data.errMessage}`;

@@ -23,8 +23,9 @@ Launch the project in development mode and live reload:
 > npm run serve
 
 ## Todo
-- [ ] Sanity check for configs (75%)
+- [ ] Sanity check for configs (80%)
 - [ ] Localization (50%)
+- [ ] Download YT media for live streams
 - [ ] Docker setup
 - [ ] Testing
 

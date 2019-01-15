@@ -1,6 +1,9 @@
 import { Message } from "discord.js";
 
 export class Command {
+  /** Indica se il comando è abilitato ed utilizzabile */
+  enabled?: boolean = true;
+
   /** La stringa che segue il prefisso del bot. */
   name: string;
 
