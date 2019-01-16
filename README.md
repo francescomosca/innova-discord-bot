@@ -47,4 +47,4 @@ A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for ma
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/francescomosca/innova-discord-bot/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/francescomosca/innova-discord-bot/blob/dev/LICENSE) file for details.
