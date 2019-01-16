@@ -29,30 +29,33 @@ export class ErrorHandler {
         if (data.command && data.command.usage) {
           reply += `\n${__("Usage")}: \`${settings().prefix}${data.command.name} ${data.command.usage}\``;
         }
-        message.channel.send(reply);
+        message.channel.send("⚠ " + reply);
         break;
       case 'command_error':
-        
-        message.channel.send(__('There was an error trying to execute that command'));
+        message.channel.send("⚠ " + __('There was an error trying to execute that command'));
         break;
       case 'no_command':
         // message.channel.send(`There is no command with that name, ${message.author}`);
         break;
       case 'no_permission':
-        message.channel.send(__(`You don't have the permission to do that, %s`, "" + message.author));
+        message.channel.send("⚠ " + __(`You don't have the permission to do that, %s`, "" + message.author));
         break;
       case 'yt_not_found':
-        message.channel.send(__(`No video found for that query`));
+        message.channel.send("⚠ " + __(`No video found for that query`));
+        break;
+      case 'live_content_unsupported':
+        message.channel.send("⚠ " + 'Mi dispiace, ma al momento non sono supportati contenuti in diretta.\n*...Per ora...*'); // @todo traduzione
         break;
       case 'no_config':
         logError(`
-        ATTENZIONE: 
+        ${__('ATTENZIONE')}: 
         
-        Per avviare il bot è necessario configurare il file "settings.json", che trovi nella cartella config. Ciò è necessario per connettersi a Discord.`);
+        ${__('Per avviare il bot è necessario configurare il file "settings.jsonc", che trovi nella cartella config. Ciò è necessario per connettersi a Discord.')}
+        `);
         process.exit(0);
         break;
       case 'command_disabled':
-        message.channel.send(__(`That command is currently disabled.`));
+        message.channel.send("⚠ " + __(`That command is currently disabled.`));
         break;
       default: // e case '?'
         reply = __('Unknown error');
@@ -66,9 +69,9 @@ export class ErrorHandler {
 
     if (String(errString).trim().startsWith('Error: No video id found:')) {
       message.channel.send(__(`No video id found. You probably sent a wrong url, %s`, "" + message.author));
-    } else {
-      
-    }
+    } /* else {
+
+    } */
 
   }
 }

@@ -4,8 +4,6 @@ import { __ } from 'i18n';
 const { createLogger, format, transports } = require('winston');
 require('winston-daily-rotate-file');
 
-// import { botName } from '../../config/settings.js';
-
 const logDir = 'log';
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);

@@ -1,9 +1,9 @@
+import { YtQuery } from './../models/yt-query';
 import { Message, RichEmbed, StreamDispatcher, VoiceChannel, Client, ColorResolvable } from 'discord.js';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { ErrorHandler } from '../errorhandler';
-import { YtQuery } from '../models/yt-query.js';
 import { setBotActivity } from '../utils/bot-activity';
 import { logDebug, logWarn, logError } from '../utils/logger';
 import { BotSettings } from './../models/bot-settings';
@@ -38,69 +38,75 @@ export class MusicService {
     return this._currentSongData;
   }
 
-  public resetCurrentSongData = () => this._currentSongData = null;
+  public resetCurrentSongData = (): void => this._currentSongData = null;
 
   public playFromYoutube = async (arg: string = '', voiceChannel: VoiceChannel, playCmdMessage: Message): Promise<any> => {
     logDebug('ricevuto urlOrText: ' + arg);
 
-    return this.searchFromYoutube(arg).then(
-      async (queryObj: YtQuery) => {
-        const ytUrl = queryObj.url;
-        const isYtUrl: boolean = ytUrl.includes('youtu.be/') || ytUrl.includes('youtube.com/');
-        if (isYtUrl) {
-          logDebug('isUrl !');
+    const ytdlOptions: ytdl.downloadOptions = {
+      quality: this._config.musicQuality
+    };
 
-          if (voiceChannel.speakable) voiceChannel.leave();
+    this.searchFromYoutube(arg).then(async (queryObj: YtQuery) => {
+      const ytUrl = queryObj.url;
+      const isYtUrl: boolean = ytUrl.includes('youtu.be/') || ytUrl.includes('youtube.com/');
+      if (isYtUrl) {
+        logDebug('isUrl !');
 
-          voiceChannel.join().then(async connection => {
-            logDebug('musicQuality: ' + this._config.musicQuality);
-            const ytdlOptions: ytdl.downloadOptions = {
-              quality: this._config.musicQuality
-            };
+        if (voiceChannel.speakable) {
+          voiceChannel.leave();
+          logDebug('speakable, quindi esco');
+        }
 
-            const stream = ytdl(ytUrl, ytdlOptions);
-            // this._player = connection.playFile(media.path);
-            this._player = connection.playStream(stream);
+        const connection = await voiceChannel.join().catch(err => Promise.reject(err));
 
-            this._currentSongData = queryObj;
-            this.playingEmbed(playCmdMessage, true).then(npMessage => {
-              this._currentNpMessage = npMessage;
-              this.handleReacts();
-            }).catch(err => Promise.reject(err));
+        try {
+          logDebug('musicQuality: ' + this._config.musicQuality);
 
-            setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
+          const stream = ytdl(ytUrl, ytdlOptions);
+          // this._player = connection.playFile(media.path);
+          this._player = connection.playStream(stream);
 
-            this._player.on('end', () => {
-              this._player = null;
-              this.handleReacts(true);
-              setBotActivity(playCmdMessage, "default");
-              // this._currentSongData = null;
-              voiceChannel.leave();
-            });
-            return Promise.resolve();
-          }).catch(err => {
-            if (voiceChannel.speakable) {
-              this._player = null;
-              // this._currentSongData = null;
-              voiceChannel.leave();
-            }
+          this._currentSongData = queryObj;
+          this.playingEmbed(playCmdMessage, true).then(npMessage => {
+            this._currentNpMessage = npMessage;
+            this.handleReacts();
+          }).catch(err => Promise.reject(err));
+
+          setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
+
+          this._player.on('end', () => {
+            this._player = null;
+            this.handleReacts(true);
             setBotActivity(playCmdMessage, "default");
-            new ErrorHandler(playCmdMessage).byString(err); // ?
+            // this._currentSongData = null;
+            voiceChannel.leave();
           });
-        } else logWarn('---- non è un url?');
-      })
-      .catch(err => {
-        new ErrorHandler(playCmdMessage).byError(err); // ?
-      });
+          return Promise.resolve();
+        } catch (err) {
+          if (voiceChannel.speakable) {
+            this._player = null;
+            // this._currentSongData = null;
+            voiceChannel.leave();
+          }
+          setBotActivity(playCmdMessage, "default");
+          new ErrorHandler(playCmdMessage).byString(err); // ?
+        }
+
+      } else logWarn('---- non è un url?');
+    }).catch(err => new ErrorHandler(playCmdMessage).byError(err));
   }
 
-  async searchFromYoutube(query: string): Promise<string | YtQuery> {
+  async searchFromYoutube(query: string): Promise<YtQuery> {
     const searcher: YTSearcher = new YTSearcher(this._config.youtubeKey);
     try {
       const queryResult = await searcher.search(query, { 'maxResults': '1' });
       console.log(queryResult.first);
-      if (queryResult && queryResult.first && queryResult.first.url && queryResult.first.url != '') return Promise.resolve(<YtQuery>queryResult.first);
-      else return Promise.reject("yt_not_found");
+
+      if (queryResult && queryResult.first && queryResult.first.url && queryResult.first.url != '') {
+        if (queryResult.first.liveBroadcastContent == 'live') return Promise.reject('live_content_unsupported');
+        return Promise.resolve(<YtQuery>queryResult.first);
+      } else return Promise.reject("yt_not_found");
     } catch (err) {
       return Promise.reject(err);
     }
@@ -173,8 +179,8 @@ export class MusicService {
               case '⏹': {
                 if (!this.player) return;
                 this.player.end('Stopped from reaction');
-                npMessage.channel.send('⏹ ' + __("Song {{songName}} stopped by {{user}}",
-                  { songName: '`' + this._currentSongData.title + '`', user: user.username }))
+                npMessage.channel.send('⏹ ' + __("Song `{{songName}}` stopped by {{user}}",
+                  { songName: this._currentSongData.title, user: user.username }))
                   .then(() => this.resetCurrentSongData());
                 this.handleReacts(true);
                 break;

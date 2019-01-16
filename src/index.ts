@@ -1,7 +1,7 @@
 import i18n = require('i18n');
 import path = require('path');
-
 import { DiscordBot } from './bot';
+import { BotSettings } from './models/bot-settings';
 import { logDebug, logError, logWarn } from './utils/logger';
 import { settings } from './utils/utils';
 
@@ -17,7 +17,9 @@ i18n.configure({
   logWarnFn: (msg) => logWarn('i18n: ' + msg),
   logErrorFn: (msg) => logError('i18n: ' + msg)
 });
+i18n.setLocale('en-us'); // default locale
 
-// @todo controllare correttezza dei config, poi:
-i18n.setLocale(settings().language);
+const config: BotSettings = settings();
+i18n.setLocale(config.language);
+
 new DiscordBot().init();

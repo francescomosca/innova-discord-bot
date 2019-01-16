@@ -29,20 +29,22 @@ Launch the project in development mode and live reload:
 
 ## Todo
 - [ ] Sanity check for configs (80%)
-- [ ] Localization (50%)
-- [ ] Download YT media for live streams
+- [ ] Localization (60%)
+- [ ] Support YT Live content (Downloading streams)
+- [ ] Command modules (probably merging with categories)
 - [ ] Docker setup
 - [ ] Testing
 
 ## Credits
 
-**Francesco Mosca** - <francesco.mosca@outlook.com> 
+Creator: **Francesco Mosca** - <francesco.mosca@outlook.com> 
 
-Project started from [DiscordJS TypeScript Starter with Gulp](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp) by *DESPLATS Philippe* - [Redek Project](https://github.com/RedekProject/)
+A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for making ais [Discord Starter](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp).
 
 #### Works with:
 * [Discord.JS](https://github.com/discordjs/discord.js) - A powerful JavaScript library for interacting with the Discord API
 * [TypeScript](https://github.com/Microsoft/TypeScript) - A superset of JavaScript that compiles to clean JavaScript output.
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/francescomosca/innova-discord-bot/blob/master/LICENSE) file for details.
