@@ -11,7 +11,7 @@ const cmd: Command = {
   category: 'music',
   aliases: ['nowplaying', 'song'],
   args: false,
-  async execute(message: Message, args?: string[]): Promise<any> {
+  async execute(message: Message, _args?: string[]): Promise<any> {
     // Ignore messages that aren't from a guild
     if (!message.guild) return;
 

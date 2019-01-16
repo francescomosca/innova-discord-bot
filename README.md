@@ -39,7 +39,7 @@ Launch the project in development mode and live reload:
 
 Creator: **Francesco Mosca** - <francesco.mosca@outlook.com> 
 
-A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for making ais [Discord Starter](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp).
+A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for making his [Discord Starter](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp).
 
 #### Works with:
 * [Discord.JS](https://github.com/discordjs/discord.js) - A powerful JavaScript library for interacting with the Discord API
