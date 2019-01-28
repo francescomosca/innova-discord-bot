@@ -1,8 +1,8 @@
 import fs = require('fs');
 import { __ } from 'i18n';
 
-const { createLogger, format, transports } = require('winston');
-require('winston-daily-rotate-file');
+import { createLogger, format, transports } from 'winston';
+import dailyRotateFile = require('winston-daily-rotate-file');
 
 const logDir = 'log';
 if (!fs.existsSync(logDir)) {
@@ -10,26 +10,27 @@ if (!fs.existsSync(logDir)) {
 }
 
 const logFormat = format.printf(log => {
-  return `${log.timestamp} ${log.label}|${log.level}: ${log.message}`;
+  return `${log.label}|${log.level}: ${log.message}`; // ${log.timestamp} 
 });
 
 const transportsData = {
   console: new transports.Console({
     level: 'info',
-    timestamp: true,
     format: format.combine(
-      format.timestamp({
-        format: 'DD-MM-YY HH:mm:ss'
-      }),
+      // format.timestamp({
+      //   format: 'DD-MM-YY HH:mm:ss'
+      // }),
       format.label({ label: 'InnovaBot' }),
       format.colorize({ all: true }),
       logFormat,
     )
   }),
-  file: new transports.DailyRotateFile({
+  file: new dailyRotateFile({
     filename: `${logDir}/%DATE%.log`,
     datePattern: 'DD-MM-YYYY',
-    level: 'debug',
+    level: 'verbose',
+    maxFiles: '31d',
+    maxSize: "128m"
   })
 };
 

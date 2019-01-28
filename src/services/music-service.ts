@@ -12,13 +12,14 @@ import { __ } from 'i18n';
 
 export class MusicService {
   private static _instance: MusicService;
+  private _config: BotSettings = settings();
 
   private _player: StreamDispatcher;
   private _currentSongData: YtQuery;
-  private _reactsListener: Client;
   private _currentNpMessage: Message;
 
-  private _config: BotSettings = settings();
+  /** Per la gestione singola delle reazioni */
+  private _reactsListener: Client;
 
   private constructor() { }
 
@@ -75,7 +76,8 @@ export class MusicService {
 
           setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
 
-          this._player.on('end', () => {
+          this._player.on('end', reason => {
+            logDebug(__("Player 'end': %s", reason));
             this._player = null;
             this.handleReacts(true);
             setBotActivity(playCmdMessage, "default");

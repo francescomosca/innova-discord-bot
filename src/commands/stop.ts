@@ -1,8 +1,8 @@
 import { Message } from 'discord.js';
-
-import { MusicService } from '../services/music-service';
-import { Command } from '../models/command';
 import { __ } from 'i18n';
+
+import { Command } from '../models/command';
+import { MusicService } from '../services/music-service';
 
 const cmd: Command = {
   name: 'stop',

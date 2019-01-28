@@ -41,7 +41,7 @@ export class DiscordBot {
 
 	private _start(): void {
 
-		// => Bot is ready...
+		/* => Bot is ready...*/
 		this._client.on('ready', () => {
 			this._loading.stop(true);
 			logInfo(__("Connected!"));
@@ -51,8 +51,7 @@ export class DiscordBot {
 			setBotActivity(this._client.user);
 		});
 
-		/*****************************************************/
-		// => Message listener
+		/* => Message listener */
 		this._client.on('message', (message: Message) => {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
@@ -65,9 +64,8 @@ export class DiscordBot {
 				}
 			} */
 		});
-		/*****************************************************/
 
-		// => Bot error and warn handler
+		/* => Bot error and warn handler */
 		this._client.on('error', err => {
 			this._loading.stop();
 			console.error(err);
@@ -79,7 +77,7 @@ export class DiscordBot {
 			logWarn(err);
 		});
 
-		// => Process handler
+		/* => Process handler */
 		process.on('exit', () => {
 			this._loading.stop(true);
 			logVerbose(`Process exit.`);
@@ -94,17 +92,19 @@ export class DiscordBot {
 		process.on('unhandledRejection', (err: Error) => {
 			logError('Uncaught Promise error: \n' + err.stack);
 		});
-
-		this._loading = new Spinner(__('Connecting..'));
+		this._loading = new Spinner(__('Connecting...'));
 		this._loading.start();
 
-		// => Login
+		/* => Login */
 		this._client.login(this._config.token)
 			.then(_token => { })
 			.catch(err => {
 				this._loading.stop();
 				logError(err);
 			});
+
+		this._client.on('disconnect', () => logWarn(__('I just disconnected. I\'ll try to reconnect now...')));
+		this._client.on('reconnecting', () => logInfo(__('Reconnecting...')));
 	}
 
 }
