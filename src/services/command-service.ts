@@ -3,35 +3,35 @@ import { logDebug, logVerbose, logError } from "../utils/logger";
 import fs = require('fs');
 import path = require('path');
 import { Command } from "../models/command";
-import { cmdUtils } from '../utils/cmd-utils';
+import { cmdUtils } from '../utils/utils';
 import { __ } from 'i18n';
 
 export class CommandService {
-  private static _instance: CommandService;
-  
-  private _commands = new Collection<string, Command>();
+	private static _instance: CommandService;
 
-  private constructor() { }
+	private _commands = new Collection<string, Command>();
 
-  /** Singleton */
-  static getInstance() {
-    if (!CommandService._instance) {
-      logDebug('CommandService instance created');
-      CommandService._instance = new CommandService();
-    }
-    return CommandService._instance;
-  }
+	private constructor() { }
 
-  get commands() {
-    return this._commands;
-  }
-
-	private _cmdFromTemplate(cmdFile: object): Command {
-		const cmdTpl = new Command();
-		return {...cmdTpl, ...cmdFile}; // come Object.assign ma col ritorno giusto
+	/** Singleton */
+	static getInstance() {
+		if (!CommandService._instance) {
+			logDebug('CommandService instance created');
+			CommandService._instance = new CommandService();
+		}
+		return CommandService._instance;
 	}
 
-  getCommands = () => {
+	get commands() {
+		return this._commands;
+	}
+
+	private _cmdFactory(cmdFile: object): Command {
+		const cmdTpl = new Command();
+		return { ...cmdTpl, ...cmdFile }; // come Object.assign ma col ritorno giusto
+	}
+
+	getCommands = () => {
 		// find the commands path relative to the OS
 		const cmdPath = path.resolve(path.dirname(__dirname), './commands');
 		logDebug(`cmdPath: ${cmdPath}`);
@@ -43,16 +43,16 @@ export class CommandService {
 		for (const file of cmdFiles) {
 			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
 			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
-			this._commands.set(cmdFile.name, this._cmdFromTemplate(cmdFile));
+			this._commands.set(cmdFile.name, this._cmdFactory(cmdFile));
 			logVerbose(`[${count}/${cmdFiles.length}] ${__("Command '%s' loaded", cmdFile.name)}`, cmdFile);
 			count++;
 		}
 		logDebug(`${__("Command's list")}: ${this._commands}`);
 	}
 
-  public async handleCommand(cmdMessage: Message): Promise<any> {
-		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`, 
-		{ msg: cmdMessage.content, author: cmdMessage.author.tag }));
+	public async handleCommand(cmdMessage: Message): Promise<any> {
+		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`,
+			{ msg: cmdMessage.content, author: cmdMessage.author.tag }));
 
 		// subtract the command and the args
 		const args: string[] = cmdUtils.command.getArgs(cmdMessage);
