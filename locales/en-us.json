@@ -1,15 +1,4 @@
 {
-	"Log level set to %s": "Log level set to %s",
-	"Starting bot...": "Starting bot...",
-	"Command '%s' loaded": "Command '%s' loaded",
-	"Connecting..": "Connecting..",
-	"Connected!": "Connected!",
-	"Logged in as %s": "Logged in as %s",
-	"You didn't provide any arguments, %s!": "You didn't provide any arguments, %s!",
-	"Usage": "Usage",
-	"Triggered from the message '{{msg}}' by {{author}}": "Triggered from the message '{{msg}}' by {{author}}",
-	"Unknown error": "Unknown error",
-	"Command's list": "Command's list",
 	"command": {
 		"help": {
 			"description": "List all of the commands or info about a specific command.",
@@ -37,6 +26,17 @@
 			"description": "Change the volume of the player."
 		}
 	},
-	"ATTENZIONE": "WARNING",
+	"Log level set to %s": "Log level set to %s",
+	"Starting bot...": "Starting bot...",
+	"Command '%s' loaded": "Command '%s' loaded",
+	"Connecting..": "Connecting..",
+	"Connected!": "Connected!",
+	"Logged in as %s": "Logged in as %s",
+	"You didn't provide any arguments, %s!": "You didn't provide any arguments, %s!",
+	"Usage": "Usage",
+	"Triggered from the message '{{msg}}' by {{author}}": "Triggered from the message '{{msg}}' by {{author}}",
+	"Unknown error": "Unknown error",
+	"Command's list": "Command's list",
+	"WARNING": "WARNING",
 	"There is no music to stop...": "There is no music to stop..."
 }

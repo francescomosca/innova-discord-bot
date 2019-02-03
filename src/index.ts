@@ -5,10 +5,11 @@ import { BotSettings } from './models/bot-settings';
 import { logDebug, logError, logWarn } from './utils/logger';
 import { settings } from './utils/utils';
 
+logDebug('i18n: directory: ' + path.resolve(__dirname, '../', 'locales'));
 i18n.configure({
   locales: ['en-us', 'it-it'],
   defaultLocale: 'en-us',
-  directory: path.resolve(__dirname, '../', 'locales'),
+  directory: path.resolve(__dirname, 'locales'),
   objectNotation: true,
   preserveLegacyCase: true,
   // register: global,

@@ -28,20 +28,20 @@ export class CommandService {
 
 	private _cmdFactory(cmdFile: object): Command {
 		const cmdTpl = new Command();
-		return { ...cmdTpl, ...cmdFile }; // come Object.assign ma col ritorno giusto
+		return { ...cmdTpl, ...cmdFile };
 	}
 
 	getCommands = () => {
-		// find the commands path relative to the OS
-		const cmdPath = path.resolve(path.dirname(__dirname), './commands');
+		const cmdPath = path.resolve(__dirname, 'commands');
 		logDebug(`cmdPath: ${cmdPath}`);
 
 		// => Searching for commands
-		const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
+		const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.js'));
 		logVerbose('commandFiles: ' + cmdFiles);
 		let count = 1;
 		for (const file of cmdFiles) {
-			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
+			const cmdFile: Command = 
+				require(path.resolve(cmdPath + '/' + file));
 			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
 			this._commands.set(cmdFile.name, this._cmdFactory(cmdFile));
 			logVerbose(`[${count}/${cmdFiles.length}] ${__("Command '%s' loaded", cmdFile.name)}`, cmdFile);

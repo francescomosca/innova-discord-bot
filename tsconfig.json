@@ -1,23 +1,32 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
-		"module": "commonjs",
-		"outDir": "./build",
-		"rootDir": "./src",
-		"declaration": false,
-		"sourceMap": true,
+		"outDir": "dist",
+		"baseUrl": "dist",
 		"noImplicitAny": false,
+		"target": "ES2017",
+		"module": "commonjs",
+		"sourceMap": true,
+		"moduleResolution": "node",
+		"removeComments": true,
+		"declaration": false,
 		"alwaysStrict": true,
-		"typeRoots": [
-						"./node_modules/@types"
-        ]
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"typeRoots": ["node_modules/@types"]
 	},
 	"exclude": [
-		"./node_modules/*",
-		"./build/*",
-		"./log/*"
+		"node_modules/*",
+		"dist/*",
+		"log/*"
 	],
 	"include": [
-		"./src/**/*.ts"
-	]
+		"src/**/*.ts"
+	],
+	"paths": {
+		"*": [
+			"node_modules/@types/*",
+			"types/*"
+		]
+	}
 }

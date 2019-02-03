@@ -1,15 +1,4 @@
 {
-	"Log level set to %s": "Livello del log impostato a %s",
-	"Starting bot...": "Avvio del bot...",
-	"Command '%s' loaded": "Comando '%s' caricato",
-	"Connecting..": "Connessione..",
-	"Connected!": "Connesso!",
-	"Logged in as %s": "Entrato come %s",
-	"You didn't provide any arguments, %s!": "Non hai dato alcun argomento al comando, %s!",
-	"Usage": "Utilizzo",
-	"Triggered from the message '{{msg}}' by {{author}}": "Avviato dal messaggio '{{msg}}' di {{author}}",
-	"Unknown error": "Errore sconosciuto",
-	"Command's list": "Lista dei comandi",
 	"command": {
 		"help": {
 			"description": "Crea una lista di tutti i comandi o informa su un comando specifico.",
@@ -37,6 +26,17 @@
 			"description": "Cambia il volume del player in riproduzione."
 		}
 	},
+	"Log level set to %s": "Livello del log impostato a %s",
+	"Starting bot...": "Avvio del bot...",
+	"Command '%s' loaded": "Comando '%s' caricato",
+	"Connecting..": "Connessione..",
+	"Connected!": "Connesso!",
+	"Logged in as %s": "Entrato come %s",
+	"You didn't provide any arguments, %s!": "Non hai dato alcun argomento al comando, %s!",
+	"Usage": "Utilizzo",
+	"Triggered from the message '{{msg}}' by {{author}}": "Avviato dal messaggio '{{msg}}' di {{author}}",
+	"Unknown error": "Errore sconosciuto",
+	"Command's list": "Lista dei comandi",
 	"Name": "Nome",
 	"Description": "Descrizione",
 	"Category": "Categoria",
@@ -45,5 +45,6 @@
 	"Song `{{songName}}` stopped by {{user}}": "La canzone `{{songName}}` è stata fermata da {{user}}",
 	"That command is currently disabled.": "Questo comando è al momento disabilitato.",
 	"There was an error trying to execute that command": "Errore nell'esecuzione del comando.",
-	"Connecting...": "Connessione in corso..."
+	"Connecting...": "Connessione in corso...",
+	"WARNING": "ATTENZIONE"
 }
