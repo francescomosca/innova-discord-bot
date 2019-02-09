@@ -1,12 +1,14 @@
 {
 	"name": "innova-discord-bot",
 	"version": "1.0.0",
+	"displayName": "Innova Discord Bot",
 	"description": "A Discord Bot made with discord.js",
-	"main": "index.js",
+	"main": "src/index.ts",
 	"scripts": {
 		"dev": "node --inspect -r ts-node/register src/index.ts",
 		"start": "ts-node src/index.ts --transpileOnly",
-		"serve": "nodemon"
+		"serve": "nodemon",
+		"lint": "tslint -p ."
 	},
 	"repository": {
 		"type": "git",
@@ -18,14 +20,14 @@
 		"@types/cli-spinner": "^0.2.0",
 		"@types/i18n": "^0.8.3",
 		"@types/jsonminify": "^0.4.0",
-		"@types/node": "^9.6.5",
+		"@types/node": "^9.6.41",
 		"del": "^3.0.0",
 		"nodemon": "^1.17.3",
 		"tslint": "^5.12.1",
 		"tslint-consistent-codestyle": "^1.15.0",
 		"tslint-eslint-rules": "^5.1.0",
-		"tslint-sonarts": "^1.8.0",
-		"typescript": "^3.2.2"
+		"tslint-sonarts": "^1.9.0",
+		"typescript": "^3.3.3"
 	},
 	"dependencies": {
 		"bufferutil": "^4.0.1",
@@ -38,9 +40,9 @@
 		"libsodium-wrappers": "^0.7.4",
 		"node-opus": "^0.3.1",
 		"ts-node": "^7.0.1",
-		"winston": "^3.1.0",
+		"winston": "^3.2.1",
 		"winston-daily-rotate-file": "^3.6.0",
 		"ytdl-core": "^0.29.1",
-		"ytsearcher": "^1.2.1"
+		"ytsearcher": "^1.2.2"
 	}
 }

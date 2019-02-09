@@ -1,7 +1,6 @@
 {
   "extends": ["tslint-consistent-codestyle", "tslint-sonarts", "tslint-eslint-rules"],
   "rules": {
-    "defaultSeverity": "warning",
     "no-duplicate-variable": true,
     "adjacent-overload-signatures": true,
     "array-type": [

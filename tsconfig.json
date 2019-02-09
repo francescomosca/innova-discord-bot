@@ -1,23 +1,23 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
+		"target": "es2018",
 		"module": "commonjs",
-		"outDir": "./build",
-		"rootDir": "./src",
+		"outDir": "build",
+		"rootDir": "src",
 		"declaration": false,
 		"sourceMap": true,
 		"noImplicitAny": false,
 		"alwaysStrict": true,
 		"typeRoots": [
-						"./node_modules/@types"
+						"node_modules/@types"
         ]
 	},
 	"exclude": [
-		"./node_modules/*",
-		"./build/*",
-		"./log/*"
+		"node_modules/*",
+		"build/*",
+		"log/*"
 	],
 	"include": [
-		"./src/**/*.ts"
+		"src/**/*.ts"
 	]
 }

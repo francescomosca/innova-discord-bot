@@ -4,6 +4,7 @@ import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
 import { logDebug } from '../utils/logger';
 import { __ } from 'i18n';
+import { embed } from '../utils/utils';
 // import { Command } from './../models/command';
 
 const cmd: Command = {
@@ -22,7 +23,7 @@ const cmd: Command = {
     const voiceChannel = message.member.voiceChannel;
     const musicService = MusicService.getInstance();
 
-    if (!voiceChannel) return message.reply('please join a voice channel first!');
+    if (!voiceChannel) return message.reply(embed.msg(__('Please join a voice channel first!')));
 
     if (musicService.player) {
       musicService.player.end('Another play command was sent');

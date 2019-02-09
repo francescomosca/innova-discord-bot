@@ -28,8 +28,9 @@ Launch the project in development mode and live reload:
 > npm run serve
 
 ## Todo
+- [ ] Version Check
 - [ ] Sanity check for configs (80%)
-- [ ] Localization (60%)
+- [ ] Localization (70%)
 - [ ] Support YT Live content (Downloading streams)
 - [ ] Command modules (probably merging with categories)
 - [ ] Docker setup

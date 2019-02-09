@@ -1,13 +1,10 @@
-import fs = require('fs');
+import { existsSync, mkdirSync } from 'fs';
 import { __ } from 'i18n';
-
 import { createLogger, format, transports } from 'winston';
-import dailyRotateFile = require('winston-daily-rotate-file');
+import * as dailyRotateFile from 'winston-daily-rotate-file';
 
 const logDir = 'log';
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+if (!existsSync(logDir)) mkdirSync(logDir);
 
 const logFormat = format.printf(log => {
   return `${log.label}|${log.level}: ${log.message}`; // ${log.timestamp} 

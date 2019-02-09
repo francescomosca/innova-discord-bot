@@ -1,8 +1,11 @@
+import { ErrorHandler } from './../errorhandler';
 import { Message } from 'discord.js';
 import { __ } from 'i18n';
 
 import { Command } from '../models/command';
 import { MusicService } from '../services/music-service';
+import { embed } from '../utils/utils';
+import { E } from '../models/errors';
 
 const cmd: Command = {
   name: 'stop',
@@ -18,11 +21,11 @@ const cmd: Command = {
     const musicService = MusicService.getInstance();
     if (musicService.player) {
       musicService.player.end('Stopped from command');
-      return message.channel.send(
-        '⏹ ' + __("Song `{{songName}}` stopped by {{user}}",
-          { songName: '`' + musicService.currentSongData.title + '`', user: message.author.username }))
+      return message.channel.send(embed.msg(
+        '⏹ ' + __("`{{songName}}` stopped by {{user}}",
+          { songName: '`' + musicService.currentSongData.title + '`', user: message.author.username })))
         .then(() => musicService.resetCurrentSongData());
-    } else return message.channel.send(__('There is no music to stop...'));
+    } else return new ErrorHandler(message).byError(E.NoMusicNoStop);
   },
 };
 

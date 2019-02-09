@@ -13,9 +13,16 @@ export class Command {
   /** La categoria del comando. Utile per raggruppare i comandi. */
   category?: Command.Category = "general";
   
-  /** Mostra come bisogna utilizzare il comando all'utente. Utile principalmente per i comandi che necessitano di argomenti. */
+  /** Mostra come bisogna utilizzare il comando all'utente. Utile per i comandi che necessitano di argomenti. 
+   * @example 
+   * // for !volume
+   * usage: 1-150;
+   * // you will see:
+   * "Usage: !volume 1-150"
+  */
   usage?: string;
 
+  /** Nomi alternativi per richiamare il comando. */
   aliases?: string[];
   
   /** Indica se il comando necessita di argomenti. 
@@ -29,6 +36,7 @@ export class Command {
 }
 
 export namespace Command {
+  // potrebbe diventare anche un enum
   export type Category = "general" | "music" | "fun" | "admin";
   export const category = {
     general: <Category>"general",

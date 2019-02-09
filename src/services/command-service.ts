@@ -1,10 +1,12 @@
 import { Collection, Message } from 'discord.js';
-import { logDebug, logVerbose, logError } from "../utils/logger";
-import fs = require('fs');
-import path = require('path');
-import { Command } from "../models/command";
-import { cmdUtils } from '../utils/utils';
+import { readdirSync } from 'fs';
 import { __ } from 'i18n';
+import { dirname, resolve } from 'path';
+
+import { Command } from '../models/command';
+import { logDebug, logError, logVerbose } from '../utils/logger';
+import { cmdUtils } from '../utils/utils';
+import { E } from '../models/errors';
 
 export class CommandService {
 	private static _instance: CommandService;
@@ -33,46 +35,43 @@ export class CommandService {
 
 	getCommands = () => {
 		// find the commands path relative to the OS
-		const cmdPath = path.resolve(path.dirname(__dirname), './commands');
+		const cmdPath = resolve(dirname(__dirname), './commands');
 		logDebug(`cmdPath: ${cmdPath}`);
 
 		// => Searching for commands
-		const cmdFiles = fs.readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
+		const cmdFiles = readdirSync(cmdPath).filter(file => file.endsWith('.ts'));
 		logVerbose('commandFiles: ' + cmdFiles);
 		let count = 1;
 		for (const file of cmdFiles) {
-			const cmdFile: Command = require(path.resolve(cmdPath + '/' + file));
+			const cmdFile: Command = require(resolve(cmdPath + '/' + file));
 			// console.log(`[${count}/${cmdFiles.length}] cmdFile: `, cmdFile);
 			this._commands.set(cmdFile.name, this._cmdFactory(cmdFile));
 			logVerbose(`[${count}/${cmdFiles.length}] ${__("Command '%s' loaded", cmdFile.name)}`, cmdFile);
 			count++;
 		}
-		logDebug(`${__("Command's list")}: ${this._commands}`);
+		// logDebug(`${__("Command's list")}: ${this._commands}`);
 	}
 
 	public async handleCommand(cmdMessage: Message): Promise<any> {
-		logDebug(__(`Triggered from the message '{{msg}}' by {{author}}`,
-			{ msg: cmdMessage.content, author: cmdMessage.author.tag }));
+		logDebug(`[${__("Triggered")}] ${cmdMessage.author.tag}: '${cmdMessage.content}'`);
 
 		// subtract the command and the args
 		const args: string[] = cmdUtils.command.getArgs(cmdMessage);
 		const commandName: string = args.shift().toLowerCase();
 
-		// check if the command exist
-		return cmdUtils.command.exists(commandName, this.commands)
-			.then(async (cmd: Command) => {
-				await cmdUtils.command.enabled(cmd);
-				await cmdUtils.command.checkArgsNeeded(cmd, args);
-				await cmdUtils.user.hasPermission(cmd, cmdMessage);
+		// checks
+		const cmd: Command = cmdUtils.command.exists(commandName, this.commands);
+		if (!cmd || cmd == null) return Promise.reject('no_command');
+		if (!cmd.enabled) return Promise.reject('command_disabled');
+		if (!cmdUtils.user.hasPermission(cmd, cmdMessage)) return Promise.reject('no_permission');
+		await cmdUtils.command.checkArgsNeeded(cmd, args);
 
-				try {
-					await cmd.execute(cmdMessage, args);
-					return Promise.resolve(cmd);
-				} catch (err) {
-					logError(err);
-					return Promise.reject("command_error");
-				}
-
-			}).catch(err => Promise.reject(err));
+		try {
+			await cmd.execute(cmdMessage, args);
+			return Promise.resolve(cmd);
+		} catch (err) {
+			logError(err);
+			return Promise.reject({ errCode: E.CommandError, errMessage: err });
+		}
 	}
 }

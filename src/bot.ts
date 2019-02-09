@@ -5,7 +5,6 @@ import { __ } from 'i18n';
 import { ErrorHandler } from './errorhandler';
 import { BotSettings } from './models/bot-settings';
 import { CommandService } from './services/command-service';
-import { ConfigService } from './services/config-service';
 import { setBotActivity } from './utils/bot-activity';
 import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
 
@@ -14,16 +13,12 @@ import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/log
  */
 export class DiscordBot {
 	private _client: Client;
-	private readonly _config: BotSettings; // readonly solo se non si effettuano modifiche real time
 	private _loading: Spinner;
 
 	private _commandServ: CommandService = CommandService.getInstance();
-	constructor() {
+	constructor(private readonly _config: BotSettings) {  // readonly solo se non si effettuano modifiche real time
 		this._client = new Client();
-		this._config = ConfigService.getInstance().settings;
-	}
 
-	public init(): void {
 		console.clear();
 		logInfo(`
 
@@ -56,8 +51,9 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._commandServ.handleCommand(message)
-					.then(_cmd => { })
-					.catch(err => new ErrorHandler(message).byError(err));
+					.then(_cmd => { }
+						, thenErr => new ErrorHandler(message).byError(thenErr, thenErr.command ? thenErr.command : undefined))
+					.catch(err => { new ErrorHandler(message).byError(err.message, err.command ? err.command : undefined); });
 			} /* else {
 					if (message.content.toLowerCase().includes('ciao bot')) {
 						message.reply(__('Hi human!'));
@@ -92,19 +88,25 @@ export class DiscordBot {
 		process.on('unhandledRejection', (err: Error) => {
 			logError('Uncaught Promise error: \n' + err.stack);
 		});
-		this._loading = new Spinner(__('Connecting...'));
+
+		this._loading = new Spinner({
+			text: __('Connecting...'),
+			// stream: process.stderr
+		});
+		this._loading.setSpinnerString(9);
 		this._loading.start();
 
 		/* => Login */
-		this._client.login(this._config.token)
-			.then(_token => { })
+		this._client.login(this._config.token).then(_token => this._loading.stop(true))
 			.catch(err => {
 				this._loading.stop();
 				logError(err);
 			});
 
 		this._client.on('disconnect', () => logWarn(__('I just disconnected. I\'ll try to reconnect now...')));
-		this._client.on('reconnecting', () => logInfo(__('Reconnecting...')));
+		this._client.on('reconnecting', () => {
+			this._loading.start().setSpinnerTitle(__('Reconnecting...'));
+		});
 	}
 
 }

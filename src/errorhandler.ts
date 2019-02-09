@@ -1,77 +1,81 @@
 import { Message } from 'discord.js';
-
-import { Command } from './models/command';
-import { logError } from './utils/logger';
-import { settings } from './utils/utils';
 import { __ } from 'i18n';
+
+import { logError, logWarn } from './utils/logger';
+import { embed, settings } from './utils/utils';
+import { E } from './models/errors';
 
 export class ErrorHandler {
 
-  constructor(
-    private _message?: Message
-  ) { }
+  constructor(private _message?: Message) { }
 
-  public byError(err: string | { errCode: string, errMessage?: any, command?: Command }): void {
+  public byError(err: E | { errCode: E, errMessage?: any }, ...args: any[]): void {
     // console.debug(`byError received: `, err);
-    const message: Message = this._message;
+    const msg: Message = this._message;
 
-    let reply: string;
 
-    let data: { errCode: string, errMessage?: any, command?: Command };
-    if (typeof err === "string") {
-      data = { errCode: err };
-    } else data = err;
+    let data: { errCode: E | string, errMessage?: any };
+    // handle error without the object as parameter
+    if (typeof err === "string") data = { errCode: err };
+    else data = err;
 
     logError(`code: ${data.errCode}`);
+
+    let reply: string;
     switch (data.errCode) {
-      case 'args_needed':
-        reply = __(`You didn't provide any arguments, %s!`, "" + message.author);
-        if (data.command && data.command.usage) {
-          reply += `\n${__("Usage")}: \`${settings().prefix}${data.command.name} ${data.command.usage}\``;
-        }
-        message.channel.send("⚠ " + reply);
+      case E.ArgsNeeded:
+        reply = __(`You didn't provide any arguments`);
+        const cmd = args[0];
+        if (cmd && cmd.usage) reply += `\n${__("Usage")}: \`${settings().prefix}${cmd.name} ${cmd.usage}\``;
         break;
-      case 'command_error':
-        message.channel.send("⚠ " + __('There was an error trying to execute that command'));
+      case E.CommandError:
+        reply = __('There was an error trying to execute that command');
         break;
-      case 'no_command':
+      case E.NoCommand:
         // message.channel.send(`There is no command with that name, ${message.author}`);
         break;
-      case 'no_permission':
-        message.channel.send("⚠ " + __(`You don't have the permission to do that, %s`, "" + message.author));
+      case E.NoPermission:
+        reply = __(`You don't have the permission to do that`);
         break;
-      case 'yt_not_found':
-        message.channel.send("⚠ " + __(`No video found for that query`));
+      case E.YtNotFound:
+        reply = __(`No video found for that query`);
         break;
-      case 'live_content_unsupported':
-        message.channel.send("⚠ " + 'Mi dispiace, ma al momento non sono supportati contenuti in diretta.\n*...Per ora...*'); // @todo traduzione
+      case E.LiveContentUnsupported:
+        reply = 'Mi dispiace, ma al momento non sono supportati contenuti in diretta.'; // @todo traduzione
         break;
-      case 'no_config':
+      case E.NoConfig:
         logError(`
-        ${__('ATTENZIONE')}: 
-        
+        ${__('⚠ ATTENZIONE ⚠')}: 
         ${__('Per avviare il bot è necessario configurare il file "settings.jsonc", che trovi nella cartella config. Ciò è necessario per connettersi a Discord.')}
         `);
         process.exit(0);
         break;
-      case 'command_disabled':
-        message.channel.send("⚠ " + __(`That command is currently disabled.`));
+      case E.CommandDisabled:
+        reply = __(`That command is currently disabled.`);
+        break;
+      case E.NoMusicNoStop:
+        reply = __('There is no music to stop...');
+        break;
+      case E.CantDm:
+        logError(`Could not send help DM${args[0] ? "to" + args[0] : ""}.\n` + data.errMessage);
+        reply = __("command.help.dmError:it seems like I can't DM you! Do you have DMs disabled?");
         break;
       default: // e case '?'
-        reply = __('Unknown error');
-        if (data.errMessage) reply += `: ${data.errMessage}`;
-        logError(reply);
+        logError(__('Unknown error') + data.errMessage ? `: ${data.errMessage}` : "");
     }
+    if (reply && msg) msg.channel.send(embed.msg("⚠ " + reply));
   }
 
-  public byString(errString: string): void {
-    const message: Message = this._message;
+  byString(errString: string): void {
+    const msg: Message = this._message;
+    let reply: string;
 
     if (String(errString).trim().startsWith('Error: No video id found:')) {
-      message.channel.send(__(`No video id found. You probably sent a wrong url, %s`, "" + message.author));
-    } /* else {
+      reply = __(`No video id found. You probably sent a wrong url, %s`, msg.author.toString());
+    } else {
+      logWarn(__('Error message not found'));
+    }
 
-    } */
-
+    if (reply && msg) msg.channel.send(embed.msg(reply));
   }
 }
