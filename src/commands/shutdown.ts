@@ -11,7 +11,7 @@ const cmd: Command = {
   args: false,
   category: "admin",
   async execute(message: Message, /* , _args?: string[] */) {
-    await message.channel.send(embed.general(`${__('command.shutdown.message:Goodbye')} :zzz:`));
+    await message.channel.send(embed.msg(`${__('command.shutdown.message:Goodbye')} :zzz:`));
     try {
       // @todo gestire client end ?
       message.client.destroy().then(process.exit(0));
