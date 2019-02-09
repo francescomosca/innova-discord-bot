@@ -23,7 +23,7 @@ const cmd: Command = {
       musicService.player.end('Stopped from command');
       return message.channel.send(embed.msg(
         '⏹ ' + __("`{{songName}}` stopped by {{user}}",
-          { songName: '`' + musicService.currentSongData.title + '`', user: message.author.username })))
+          { songName: musicService.currentSongData.title, user: message.author.username })))
         .then(() => musicService.resetCurrentSongData());
     } else return new ErrorHandler(message).byError(E.NoMusicNoStop);
   },

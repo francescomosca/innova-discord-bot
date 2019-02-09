@@ -18,8 +18,8 @@ export class ConfigService {
 	private constructor() { }
 	static getInstance() {
 		if (!ConfigService._instance) {
-			logDebug('CommandService instance created');
 			ConfigService._instance = new ConfigService();
+			logDebug('ConfigService instance created');
 		}
 		return ConfigService._instance;
 	}

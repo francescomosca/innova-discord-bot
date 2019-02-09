@@ -14,14 +14,8 @@ const cmd: Command = {
   aliases: ['commands', 'info'],
   args: false,
   async execute(message: Message, args?: string[]) {
-
-    if (!args.length) {
-      // show commands list
-      showCommandList(message);
-    } else {
-      // show command details
-      showCommandDetails(message, args);
-    }
+    if (!args.length) showCommandList(message);
+    else showCommandDetails(message, args);
   }
 };
 
@@ -30,7 +24,7 @@ const showCommandList = async (message: Message) => {
   const categories = Object.keys(Command.category);
   logDebug("command categories: " + categories.join(', '));
 
-  const helpEmbed = embed.help(cmds, message);
+  const helpEmbed = embed.help(cmds);
 
   if (settings().helpInDm) {
     return message.author.send(helpEmbed)

@@ -13,6 +13,7 @@ export class BotSettings {
   logLevel: string = 'info';
   musicQuality: BotSettings.MusicQuality = 'highestaudio';
   helpInDm: boolean = false;
+  maxVolume: string | number = 110;
 }
 
 export namespace BotSettings {

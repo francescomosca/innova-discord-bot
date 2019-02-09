@@ -2,16 +2,20 @@ import { Collection, ColorResolvable, Message, RichEmbed } from 'discord.js';
 import { __ } from 'i18n';
 
 import { Command } from '../models/command';
+import { E } from '../models/errors';
 import { ConfigService } from '../services/config-service';
 import { BotSettings } from './../models/bot-settings';
 import { YtQuery } from './../models/yt-query';
 import { logVerbose } from './logger';
-import { E } from '../models/errors';
+
+
+let botAvatar = "";
+export const setBotAvatar = (avatar: string) => botAvatar = avatar;
 
 export const stringCapitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 /**
- * @return BotSettings 
+ * @requires ConfigService
  * @alias ConfigService.getInstance().settings; 
  * */
 export const settings = (): BotSettings => ConfigService.getInstance().settings;
@@ -27,9 +31,9 @@ export const cmdUtils = {
 
     /** Throws 'args_needed' if the command need args. */
     checkArgsNeeded: (command: Command, args: string[]): Promise<any> => {
-      logVerbose(`[checkArgs] command.name: ${command.name}` + (args.length ? `| args: ${args.join(', ')}` : ""));
+      logVerbose(`[checkArgs] command.name: ${command.name}` + (args.length ? ` | args: ${args.join(', ')}` : ""));
       const argsNeeded = command.args && !args.length;
-      return argsNeeded ? Promise.reject({errCode: E.ArgsNeeded, command: command}) : Promise.resolve();
+      return argsNeeded ? Promise.reject({ errCode: E.ArgsNeeded, command: command }) : Promise.resolve();
     },
 
     /** Get the arguments from the message. */
@@ -49,15 +53,41 @@ export const cmdUtils = {
   }
 };
 
-export const embed = {
-  msg: (title: string, withFooter: boolean = true): { embed: RichEmbed } => {
-    const embed = new RichEmbed()
-    .setTitle(title);
+/**
+ * Transform a string in emojis.
+ * @param  {string} text The original text
+ * @returns string
+ * @example
+ * textToEmoji('abc')
+ * // returns
+ * `:regional_indicator_a::regional_indicator_b::regional_indicator_c:`
+ */
+const textToEmoji = (text: string): string => {
+  return text.split('').map(
+    char => char.match(/[a-z]/i) ? `:regional_indicator_${char.toLowerCase()}:` : char.toUpperCase()
+  ).join('');
 
-    if (withFooter) embed
-      .setFooter(settings().botName + ' v' + process.env.npm_package_version)
-      .setTimestamp(new Date());
-    return { embed: embed };
+};
+
+/** A collection of embeds. */
+export const embed = {
+  _defaultFooter: settings().botName + ' v' + process.env.npm_package_version,
+  msg: (title: string | number, withFooter: boolean = true): { embed: RichEmbed } => {
+    const finalEmbed = new RichEmbed().setTitle(title);
+    if (withFooter) finalEmbed
+      .setFooter(embed._defaultFooter, botAvatar);
+    // .setTimestamp(new Date());
+    return { embed: finalEmbed };
+  },
+  ping: (apiLatency: number, latency: number): { embed: RichEmbed } => {
+    return {
+      embed: new RichEmbed()
+        .setTitle(textToEmoji('pong'))
+        .addField('API latency', apiLatency + "ms", true)
+        .addField('Total latency', latency + "ms", true)
+        .setFooter(embed._defaultFooter, botAvatar)
+        .setTimestamp(new Date())
+    };
   },
   nowPlaying: (data: YtQuery, requestedBy: string): { embed: RichEmbed } => {
     return {
@@ -68,10 +98,10 @@ export const embed = {
         .setDescription(`[${data.title}](${data.url})\n${__("Requested by:")} <@${requestedBy}>`)
         .setThumbnail(data.thumbnails.default.url)
         .setTimestamp(new Date())
-        .setFooter(settings().botName + ' v' + process.env.npm_package_version)
+        .setFooter(embed._defaultFooter, botAvatar)
     };
   },
-  help: (cmds: Collection<any, any>, message: Message): { embed: RichEmbed } => {
+  help: (cmds: Collection<any, any>): { embed: RichEmbed } => {
     // tslint:disable-next-line:prefer-const
     let finalEmbed: RichEmbed = new RichEmbed()
       .setColor(3447003)
@@ -79,7 +109,7 @@ export const embed = {
       .setTitle(__("command.help.embed.title:Here's a list of all my commands"))
       .setDescription(__("command.help.embed.description:You can send `%shelp <command name>` to get info on a specific command.", settings().prefix))
       .setTimestamp(new Date())
-      .setFooter("InnovaBot " + process.env.npm_package_version, message.client.user.avatarURL);
+      .setFooter(embed._defaultFooter, botAvatar);
 
     let catCommands: Command[] = [];
     for (const cat in Command.category) {

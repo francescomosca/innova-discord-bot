@@ -1,4 +1,4 @@
-import { embed } from './../utils/utils';
+import { embed, settings } from './../utils/utils';
 import { Message } from 'discord.js';
 
 import { MusicService } from '../services/music-service';
@@ -11,29 +11,38 @@ const cmd: Command = {
   category: 'music',
   args: false,
   usage: '1-150',
-  async execute(message: Message, args: string[]): Promise<any> {
+  async execute(message: Message, args?: string[]): Promise<any> {
     // Ignore messages that aren't from a guild
     if (!message.guild) return;
+    const maxVol = Number(settings().maxVolume);
 
-    let newVol = Number(args[0]);
-    if (!newVol) return message.channel.send(__('Volume needs to be a number...'));
+    const newVol: number = Number(args[0]);
 
-    if (newVol < 1 || newVol > 150) return message.channel.send(__('Invalid volume. It needs to be a number from 1 to 150'));
+    // se non è un numero o è errato (rileva il NaN)
+    if (args.length && (!newVol || newVol < 1 || newVol > maxVol)) return message.channel.send(
+      __("The volume needs to be a number from `1` to `%s`", maxVol.toString()));
 
-    const musicService = MusicService.getInstance();
-    if (musicService.player) {
-      /* @todo inviare volume corrente se non ci sono args */
-      const oldVol = musicService.player.volume;
-      newVol = newVol / 100;
-      musicService.player.setVolume(newVol);
-      
-      return message.channel.send(
-        embed.msg("🔊 " +
-          __("Volume changed from `{{oldVol}}` to `{{newVol}}`.",
-            { oldVol: (oldVol * 100).toString(), newVol: (newVol * 100).toString() })
-        ))
-        .then(() => musicService.resetCurrentSongData());
-    } else return message.channel.send(__("I can't change volume while there are no songs playing..."));
+    const musicServ = MusicService.getInstance();
+    // dev'esserci qualcosa in riproduzione, quindi:
+    if (musicServ.player) {
+      const oldVol = musicServ.player.volume * 100; // player.volume ragiona da 0.00 a 1.00
+
+      if (newVol) { // se l'intenzione è di cambiare volume
+        musicServ.player.setVolume(newVol / 100);
+        return message.channel.send(
+          embed.msg("🔊 " +
+            __("command.volume.changed:Volume changed from `{{oldVol}}%` to `{{newVol}}%`.",
+              { oldVol: oldVol.toString(), newVol: newVol.toString() })
+            , false));
+      } else { // altrimenti mostra il volume
+        message.channel.send(embed.msg("🔊 " +
+          __('command.volume.current:Current volume: {{vol}}%', { vol: oldVol.toString() })
+          , false));
+      }
+
+    } else return message.channel.send(embed.msg(
+      __("I can't say or change the volume while there are no songs playing...")));
+
   },
 };
 

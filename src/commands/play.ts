@@ -5,11 +5,10 @@ import { Command } from '../models/command';
 import { logDebug } from '../utils/logger';
 import { __ } from 'i18n';
 import { embed } from '../utils/utils';
-// import { Command } from './../models/command';
 
 const cmd: Command = {
   name: 'play',
-  aliases: ['stream'],
+  aliases: ['stream', 'search'],
   description: __("command.play.description"),
   category: 'music',
   args: true,
@@ -21,13 +20,12 @@ const cmd: Command = {
     if (!message.guild) return;
 
     const voiceChannel = message.member.voiceChannel;
-    const musicService = MusicService.getInstance();
-
     if (!voiceChannel) return message.reply(embed.msg(__('Please join a voice channel first!')));
 
+    const musicService = MusicService.getInstance();
     if (musicService.player) {
       musicService.player.end('Another play command was sent');
-      musicService.handleReacts(true);
+      musicService.handleReacts(true); // necessario?
     }
 
     return musicService.playFromYoutube(cleanArg, voiceChannel, message)

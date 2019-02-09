@@ -4,7 +4,7 @@ import { __ } from 'i18n';
 import { dirname, resolve } from 'path';
 
 import { Command } from '../models/command';
-import { logDebug, logError, logVerbose } from '../utils/logger';
+import { logDebug, logError, logVerbose, logInfo } from '../utils/logger';
 import { cmdUtils } from '../utils/utils';
 import { E } from '../models/errors';
 
@@ -18,8 +18,8 @@ export class CommandService {
 	/** Singleton */
 	static getInstance() {
 		if (!CommandService._instance) {
-			logDebug('CommandService instance created');
 			CommandService._instance = new CommandService();
+			logDebug('CommandService instance created');
 		}
 		return CommandService._instance;
 	}
@@ -53,7 +53,7 @@ export class CommandService {
 	}
 
 	public async handleCommand(cmdMessage: Message): Promise<any> {
-		logDebug(`[${__("Triggered")}] ${cmdMessage.author.tag}: '${cmdMessage.content}'`);
+		logInfo(`[${__("Triggered")}] ${cmdMessage.author.tag}: '${cmdMessage.content}'`);
 
 		// subtract the command and the args
 		const args: string[] = cmdUtils.command.getArgs(cmdMessage);

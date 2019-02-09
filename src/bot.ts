@@ -1,3 +1,4 @@
+import { setBotAvatar } from './utils/utils';
 import { Spinner } from 'cli-spinner';
 import { Client, Message } from 'discord.js';
 import { __ } from 'i18n';
@@ -42,6 +43,8 @@ export class DiscordBot {
 			logInfo(__("Connected!"));
 			logInfo(__(`Logged in as %s`, this._client.user.tag));
 
+			// save the bot's avatar for using it in embeds
+			setBotAvatar(this._client.user.avatarURL);
 			// sets the text under the bot's name
 			setBotActivity(this._client.user);
 		});

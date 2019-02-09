@@ -19,7 +19,7 @@ export class MusicService {
   private _currentSongData: YtQuery;
   private _currentNpMessage: Message;
 
-  /** Per la gestione singola delle reazioni. */
+  /** Per la gestione singola delle reazioni. Utilizzato in handleReacts */
   private _reactsListener: Client;
 
   /** Singleton */
@@ -51,8 +51,8 @@ export class MusicService {
         logDebug('isUrl !');
 
         if (voiceChannel.speakable) {
-          voiceChannel.leave();
           logDebug('speakable, quindi esco');
+          voiceChannel.leave();
         }
 
         const connection = await voiceChannel.join().catch(err => Promise.reject(err));
@@ -63,7 +63,6 @@ export class MusicService {
           const stream = ytdl(ytUrl, { quality: this._config.musicQuality });
           // this._player = connection.playFile(media.path);
           this._player = connection.playStream(stream);
-
           this._currentSongData = queryObj;
 
           const npMessage = await this.playingEmbed(playCmdMessage, true).catch(err => Promise.reject(err));
@@ -74,7 +73,7 @@ export class MusicService {
           setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
 
           this._player.on('end', reason => {
-            logDebug(__("Player 'end': %s", reason));
+            logDebug("Player 'end': " + reason);
             this._player = null;
             this.handleReacts(true);
             setBotActivity(playCmdMessage, "default");
@@ -96,6 +95,11 @@ export class MusicService {
     }).catch(err => new ErrorHandler(playCmdMessage).byError(err));
   }
 
+  /**
+   * @param  {string} query Un url o una stringa da ricercare.
+   * @requires YTSearcher
+   * @returns Promise<YtQuery>
+   */
   async searchFromYoutube(query: string): Promise<YtQuery> {
     try {
       const queryResult = await new YTSearcher(this._config.youtubeKey).search(query, { 'maxResults': '1' });

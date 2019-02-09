@@ -5,7 +5,7 @@
 	"description": "A Discord Bot made with discord.js",
 	"main": "src/index.ts",
 	"scripts": {
-		"dev": "node --inspect -r ts-node/register src/index.ts",
+		"start:dev": "node --inspect -r ts-node/register src/index.ts",
 		"start": "ts-node src/index.ts --transpileOnly",
 		"serve": "nodemon",
 		"lint": "tslint -p ."

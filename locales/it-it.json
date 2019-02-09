@@ -24,7 +24,8 @@
 			"description": "Ferma una canzone avviata da un'altro comando."
 		},
 		"volume": {
-			"description": "Cambia il volume del player in riproduzione."
+			"description": "Cambia o mostra il volume del player in riproduzione.",
+			"current": "Volume: {{vol}}%"
 		}
 	},
 	"Log level set to %s": "Livello del log impostato a %s",
@@ -33,24 +34,24 @@
 	"Connecting..": "Connessione..",
 	"Connected!": "Connesso!",
 	"Logged in as %s": "Entrato come %s",
-	"You didn't provide any arguments": "Non hai dato alcun argomento al comando",
-	"Usage": "Utilizzo",
-	"Unknown error": "Errore sconosciuto",
-	"Command's list": "Lista dei comandi",
 	"Name": "Nome",
 	"Description": "Descrizione",
 	"Category": "Categoria",
+	"You didn't provide any arguments": "Non hai dato alcun argomento al comando",
+	"Usage": "Utilizzo",
+	"Unknown error": "Errore sconosciuto",
 	"That's not a valid command": "Questo non è un comando valido",
 	"No video found for that query": "Nessun video trovato per questa ricerca",
 	"`{{songName}}` stopped by {{user}}": "`{{songName}}` è stata fermata da {{user}}",
 	"That command is currently disabled.": "Questo comando è al momento disabilitato.",
 	"There was an error trying to execute that command": "Errore nell'esecuzione del comando.",
 	"Connecting...": "Connessione in corso...",
-	"Player 'end'": " %s",
 	"There is no music to stop...": "Non c'è musica in riproduzione da fermare...",
 	"Now Playing": "In Riproduzione",
 	"Requested by": "Richiesta da",
 	"Aliases": "Alias",
 	"Triggered": "Innescato",
-	"Reconnecting...": "Riconnessione..."
+	"Reconnecting...": "Riconnessione...",
+	"I can't say or change the volume while there are no songs playing...": "Non posso trovare o cambiare il volume mentre nessuna canzone è in riproduzione...",
+	"The volume needs to be a number from `1` to `%s`": "Il volume dev'essere un numero da `1` a `%s`"
 }

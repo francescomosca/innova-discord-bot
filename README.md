@@ -8,7 +8,7 @@ Innova Discord Bot
 
 - [Git](https://git-scm.com/downloads)
 - Node.js ([Windows](https://nodejs.org/it/) | [macOS/Linux](https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions))
-- windows-build-tools: `npm i -g windows-build-tools`
+- windows-build-tools: `npm i -g windows-build-tools` <!-- searching for another solution -->
 
 1. Download the repo: `git clone https://github.com/francescomosca/innova-discord-bot.git`
 2. Go to the project folder: `cd innova-discord-bot`
@@ -16,31 +16,30 @@ Innova Discord Bot
 
 ## Configuration
 
-1. `token`: Go to your [application page](https://discordapp.com/developers/applications/me) and get your token by following [this video](https://drive.google.com/file/d/1wZG_TBVfjQfj0CEYaRTzS60D-cbfeeYZ/view).
-2. `youtubeKey`: https://console.cloud.google.com/apis/library/youtube.googleapis.com
+1. Go to the folder `config` and rename `settings.example.jsonc` to `settings.jsonc`
+2. Set `token`: Go to your [application page](https://discordapp.com/developers/applications/me) and get your token by following [this video](https://drive.google.com/file/d/1wZG_TBVfjQfj0CEYaRTzS60D-cbfeeYZ/view).
+3. Set `youtubeKey`: [Get your key here](https://console.cloud.google.com/apis/library/youtube.googleapis.com)
 
 ## Usage
 
-Launch the project:
+Launch the bot:
 > npm run start
 
-Launch the project in development mode and live reload:
+Launch the bot in development mode and live reload:
 > npm run serve
 
 ## Todo
-- [ ] Version Check
-- [ ] Sanity check for configs (80%)
+See: [Milestones](https://github.com/francescomosca/innova-discord-bot/milestones)
+
 - [ ] Localization (70%)
-- [ ] Support YT Live content (Downloading streams)
 - [ ] Command modules (probably merging with categories)
-- [ ] Docker setup
 - [ ] Testing
 
 ## Credits
 
 Creator: **Francesco Mosca** - <francesco.mosca@outlook.com> 
 
-A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for making his [Discord Starter](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp).
+A special thanks to [DESPLATS Philippe](https://github.com/RedekProject/) for making his [DiscordJS TypeScript Starter](https://github.com/RedekProject/DiscordJS-TypeScript-Starter-Gulp).
 
 #### Works with:
 * [Discord.JS](https://github.com/discordjs/discord.js) - A powerful JavaScript library for interacting with the Discord API

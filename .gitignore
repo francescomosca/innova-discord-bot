@@ -1,7 +1,14 @@
 *.old*
 *_old*
 
+Thumbs.db
+*.DS_Store
+*.sln.cache
+*~
+.vs/
 .vscode/
+.sonarlint/
+
 node_modules/
 build/
 dist/

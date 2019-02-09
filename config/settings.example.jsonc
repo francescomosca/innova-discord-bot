@@ -1,47 +1,50 @@
 {
   /*
-  *-------------------------------------------*
-  *                                           *
-  * CONFIGURATION FILE FOR INNOVA DISCORD BOT *
-  *                                           *
-  *-------------------------------------------*
-  */
- 
- /** The name of your bot */
- "botName": "InnovaBot",
- 
- /** The Discord Token
-  * 1. Go to: (https://discordapp.com/developers/applications/me)
-  * 2. Get your token by following [this video](https://drive.google.com/file/d/1wZG_TBVfjQfj0CEYaRTzS60D-cbfeeYZ/view).
+   *-------------------------------------------*
+   *                                           *
+   * CONFIGURATION FILE FOR INNOVA DISCORD BOT *
+   *                                           *
+   *-------------------------------------------*
+   */
+
+  /** The name of your bot */
+  "botName": "InnovaBot",
+
+  /** The Discord Token
+   * 1. Go to: (https://discordapp.com/developers/applications/me)
+   * 2. Get your token by following [this video](https://drive.google.com/file/d/1wZG_TBVfjQfj0CEYaRTzS60D-cbfeeYZ/view).
    */
   "token": "BOT_TOKEN",
-  
+
   /** Your YouTube API Key 
    * https://console.cloud.google.com/apis/library/youtube.googleapis.com
    */
   "youtubeKey": "YOUTUBE_KEY",
-  
+
   /** No description */
   "prefix": "!",
-  
+
   /** No description */
   "defaultActivity": "> !play",
-  
+
   /** No description */
   "language": "en-us",
-  
+
   /** No description
    * 
    * `error,warn,info,verbose,debug,silly`
    */
   "logLevel": "info",
-  
+
   /** No description
    * 
    * `highestaudio,lowestaudio`
    */
   "musicQuality": "highestaudio",
-  
+
   /** No description */
-  "helpInDm": false
+  "helpInDm": false,
+
+  /** No description */
+  "maxVolume": 110
 }
