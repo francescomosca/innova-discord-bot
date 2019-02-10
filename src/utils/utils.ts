@@ -86,7 +86,7 @@ export const embed = {
         .addField('API latency', apiLatency + "ms", true)
         .addField('Total latency', latency + "ms", true)
         .setFooter(embed._defaultFooter, botAvatar)
-        .setTimestamp(new Date())
+        // .setTimestamp(new Date())
     };
   },
   nowPlaying: (data: YtQuery, requestedBy: string): { embed: RichEmbed } => {

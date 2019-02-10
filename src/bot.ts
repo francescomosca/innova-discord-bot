@@ -1,17 +1,14 @@
-import { setBotAvatar } from './utils/utils';
 import { Spinner } from 'cli-spinner';
 import { Client, Message } from 'discord.js';
 import { __ } from 'i18n';
 
 import { ErrorHandler } from './errorhandler';
 import { BotSettings } from './models/bot-settings';
+import { BotActivityService } from './services/bot-activity-service';
 import { CommandService } from './services/command-service';
-import { setBotActivity } from './utils/bot-activity';
 import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
+import { setBotAvatar } from './utils/utils';
 
-/**
- * Main class of the Discord Bot.
- */
 export class DiscordBot {
 	private _client: Client;
 	private _loading: Spinner;
@@ -46,7 +43,7 @@ export class DiscordBot {
 			// save the bot's avatar for using it in embeds
 			setBotAvatar(this._client.user.avatarURL);
 			// sets the text under the bot's name
-			setBotActivity(this._client.user);
+			BotActivityService.getInstance(this._client.user);
 		});
 
 		/* => Message listener */

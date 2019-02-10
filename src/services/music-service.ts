@@ -1,23 +1,43 @@
-import { Client, Message, StreamDispatcher, VoiceChannel } from 'discord.js';
+import {
+  Client,
+  DMChannel,
+  GroupDMChannel,
+  Message,
+  StreamDispatcher,
+  TextChannel,
+  VoiceChannel,
+  VoiceConnection,
+} from 'discord.js';
 import { __ } from 'i18n';
+import { Observable, Subject } from 'rxjs';
+import { Readable } from 'stream';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { ErrorHandler } from '../errorhandler';
-import { setBotActivity } from '../utils/bot-activity';
-import { logDebug, logError, logWarn } from '../utils/logger';
+import { logDebug, logError, logVerbose, logWarn } from '../utils/logger';
 import { embed, settings } from '../utils/utils';
 import { BotSettings } from './../models/bot-settings';
 import { YtQuery } from './../models/yt-query';
 
-/** @todo utilizzare RxJS per ridurre il codice */
+export interface Song {
+  title: string;
+  url: string;
+  thumbnailUrl: string;
+  dispatcher?: StreamDispatcher;
+  requestedBy: string;
+}
+
 export class MusicService {
   private static _instance: MusicService;
   private _config: BotSettings = settings();
 
-  private _player: StreamDispatcher;
-  private _currentSongData: YtQuery;
-  private _currentNpMessage: Message;
+  private _songs: Song[] = [];
+  private _songsSource = new Subject();
+  songs$: Observable<{} | Song | Song[]> = this._songsSource.asObservable();
+
+  private _nowPlayingMessage: Message;
+  private _voiceConnection: VoiceConnection;
 
   /** Per la gestione singola delle reazioni. Utilizzato in handleReacts */
   private _reactsListener: Client;
@@ -32,81 +52,109 @@ export class MusicService {
     return MusicService._instance;
   }
 
-  get player(): StreamDispatcher {
-    return this._player;
+  get currentSong(): Song {
+    return this._songs[0];
   }
-  get currentSongData() {
-    return this._currentSongData;
+  // public resetCurrentSongData = (): void => this._currentSongData = null;
+
+  /* 1. vengo chiamato da !play che mi manda un url o una stringa da ricercare */
+  addSongs = async (query: string = '', requestedBy: string): Promise<any> => {
+    logDebug('[playFromYoutube] ricevuto urlOrText: ' + query);
+
+    /* 2. do la query a searchFromYoutube che mi ritorna la la YtQuery */
+    const songFound: YtQuery = await this.searchFromYoutube(query)
+      .catch(err => Promise.reject(err));
+
+    if (songFound.liveBroadcastContent == 'live') return Promise.reject('live_content_unsupported');
+    if (songFound.title && songFound.url && songFound.thumbnails.default.url) {
+
+      /* 3. aggiungo la canzone alla queue */
+      this._songs.push({
+        title: songFound.title,
+        url: songFound.url,
+        thumbnailUrl: songFound.thumbnails.default.url,
+        requestedBy: requestedBy
+      });
+
+      /* 4. aggiorno lo stato delle canzoni, facendo fare il lavoro sporco a play() */
+      this._songsSource.next(this._songs);
+      // await this.play(userVoiceChannel, playCmdMessage);
+    } else Promise.reject('no_data_in_youtube_query');
   }
 
-  public resetCurrentSongData = (): void => this._currentSongData = null;
+  play = async (userVoiceChannel: VoiceChannel, playCmdMessage: Message) => {
+    const song = this.currentSong;
 
-  public playFromYoutube = async (arg: string = '', voiceChannel: VoiceChannel, playCmdMessage: Message): Promise<any> => {
-    logDebug('ricevuto urlOrText: ' + arg);
+    /* 10. Se non ci sono altre canzoni, esco dal canale vocale */
+    if (!song && userVoiceChannel.speakable) {
+      logDebug('nessuna song e speakable, quindi esco');
+      userVoiceChannel.leave();
+      return;
+    }
+    // /* 5. se esiste il player 'lo finisco', e aggiorno i reacts */
+    // if (song.dispatcher) {
+    //   song.dispatcher.end('Another play command was sent');
+    //   this.handleReacts(true); // necessario?
+    // }
 
-    this.searchFromYoutube(arg).then(async (queryObj: YtQuery) => {
-      const ytUrl = queryObj.url;
-      const isYtUrl: boolean = ytUrl.includes('youtu.be/') || ytUrl.includes('youtube.com/');
-      if (isYtUrl) {
-        logDebug('isUrl !');
+    /* 5. Entro nel canale vocale */
+    this._voiceConnection = await userVoiceChannel.join().catch(err => Promise.reject(err));
+    logDebug('musicQuality: ' + this._config.musicQuality);
 
-        if (voiceChannel.speakable) {
-          logDebug('speakable, quindi esco');
-          voiceChannel.leave();
-        }
+    try {
+      const stream: Readable = ytdl(song.url, { quality: this._config.musicQuality });
+      /* 6. faccio lo stream di ciò che mi da ytdl */
+      song.dispatcher = this._voiceConnection.playStream(stream, { bitrate: 'auto' }); // @todo vedere seek
+      // this._currentSongData = ytSong;
 
-        const connection = await voiceChannel.join().catch(err => Promise.reject(err));
+      
+      /* 7. invio l'embed Now Playing e gestisco i reacts */
+      const npMessage = await this.playingEmbed(playCmdMessage.channel)
+      .catch(err => Promise.reject(err));
+      this._nowPlayingMessage = npMessage;
+      this.handleReacts();
 
-        try {
-          logDebug('musicQuality: ' + this._config.musicQuality);
+      /* 8. elimino il messaggio trigger !play <> */
+      playCmdMessage.deletable ? playCmdMessage.delete() : logDebug("Non ho eliminato il message del comando 'play'");
 
-          const stream = ytdl(ytUrl, { quality: this._config.musicQuality });
-          // this._player = connection.playFile(media.path);
-          this._player = connection.playStream(stream);
-          this._currentSongData = queryObj;
+      // setBotActivity(playCmdMessage, `🎶 ${song.title}`);
 
-          const npMessage = await this.playingEmbed(playCmdMessage, true).catch(err => Promise.reject(err));
-          this._currentNpMessage = npMessage;
-          this.handleReacts();
+      song.dispatcher.on('end', reason => {
+        /* 9. Alla fine dello stream ________ */
+        logDebug("Player 'end'" + reason ? ": " + reason : "");
+        this._songs.shift();
+        this.handleReacts(true);
+        if (this._songs.length) this._songsSource.next(this._songs);
+        // setBotActivity(playCmdMessage, "default");
+        // this._currentSongData = null;
+        // voiceChannel.leave();
+      });
 
-
-          setBotActivity(playCmdMessage, `🎶 ${this._currentSongData.title}`);
-
-          this._player.on('end', reason => {
-            logDebug("Player 'end': " + reason);
-            this._player = null;
-            this.handleReacts(true);
-            setBotActivity(playCmdMessage, "default");
-            // this._currentSongData = null;
-            voiceChannel.leave();
-          });
-          return Promise.resolve();
-        } catch (err) {
-          if (voiceChannel.speakable) {
-            this._player = null;
-            // this._currentSongData = null;
-            voiceChannel.leave();
-          }
-          setBotActivity(playCmdMessage, "default");
-          new ErrorHandler(playCmdMessage).byString(err); // ?
-        }
-
-      } else logWarn('---- non è un url?');
-    }).catch(err => new ErrorHandler(playCmdMessage).byError(err));
+      return Promise.resolve();
+    } catch (err) {
+      if (userVoiceChannel.speakable) {
+        song.dispatcher = null;
+        // this._currentSongData = null;
+        userVoiceChannel.leave();
+      }
+      // setBotActivity(playCmdMessage, "default");
+      return new ErrorHandler(playCmdMessage).byString(err); // ?
+    }
   }
 
   /**
    * @param  {string} query Un url o una stringa da ricercare.
    * @requires YTSearcher
-   * @returns Promise<YtQuery>
+   * @returns Promise<YtQuery> i dati ricevuti dall'API di YouTube.
    */
-  async searchFromYoutube(query: string): Promise<YtQuery> {
+  searchFromYoutube = async (query: string, /* nResults: number | string = 1 */): Promise<YtQuery> => {
+    // if (typeof nResults == "number") nResults = nResults.toString();
     try {
-      const queryResult = await new YTSearcher(this._config.youtubeKey).search(query, { 'maxResults': '1' });
-      console.log(queryResult.first);
+      const queryResult = await new YTSearcher(this._config.youtubeKey)
+        .search(query, { 'maxResults': '1' /* nResults */ });
+      logVerbose(JSON.stringify(queryResult.first));
 
       if (queryResult && queryResult.first && queryResult.first.url && queryResult.first.url != '') {
-        if (queryResult.first.liveBroadcastContent == 'live') return Promise.reject('live_content_unsupported');
         return Promise.resolve(<YtQuery>queryResult.first);
       } else return Promise.reject("yt_not_found");
     } catch (err) {
@@ -114,31 +162,28 @@ export class MusicService {
     }
   }
 
-  playingEmbed = async (triggerMsg: Message, deleteTriggerMsg: boolean = false): Promise<Message> => {
-    const data = this._currentSongData;
+  playingEmbed = async (channel: TextChannel | DMChannel | GroupDMChannel): Promise<Message> => {
+    const data = this.currentSong;
     if (!data) Promise.reject('no data in playingEmbed');
-
-    const embedMsg = await triggerMsg.channel.send(embed.nowPlaying(data, triggerMsg.author.id));
-
-    if (embedMsg && deleteTriggerMsg) triggerMsg.deletable ? triggerMsg.delete() : logWarn("Non ho potuto eliminare il messaggio del comando 'play'");
-
-    const condition = embedMsg.toString().startsWith('['); // @todo strano che ne abbia bisogno
-    logDebug('condition: ' + condition);
-    return condition ? embedMsg[0] : embedMsg;
+    const embedMsg = await channel.send(embed.nowPlaying(data, data.requestedBy));
+    return Array.isArray(embedMsg) ? embedMsg[0] : embedMsg;
   }
 
   handleReacts = async (fromSelf: boolean = false): Promise<any> => {
-    const npMsg = this._currentNpMessage;
     logDebug('entrato in handleReacts');
+
+    const dispatcher = this.currentSong.dispatcher;
+    const npMsg = this._nowPlayingMessage;
+
     if (npMsg && npMsg.content) logDebug('Contenuto del messaggio che ascolto: ' + npMsg.content);
 
     try {
-      if (!this._player && npMsg) {
+      if (!dispatcher && npMsg) {
         npMsg.client.removeAllListeners('messageReactionAdd');
         await npMsg.clearReactions();
         npMsg.deletable ? await npMsg.delete() : logWarn('Can\'t delete now playing message');
         return;
-      } else logDebug('player: ' + String(this._player));
+      } else logDebug('player: ' + String(dispatcher));
       await npMsg.clearReactions();
 
       if (!fromSelf) { // @todo invertire fromSelf e dare una descrizione migliore
@@ -149,21 +194,21 @@ export class MusicService {
           try {
             switch (reaction.emoji.name) {
               case '⏸': {
-                this.player.pause();
+                dispatcher.pause();
                 this.handleReacts(true);
                 break;
               }
               case '▶': {
-                this.player.resume();
+                dispatcher.resume();
                 this.handleReacts(true);
                 break;
               }
               case '⏹': {
-                if (!this.player) return;
-                this.player.end('Stopped from reaction');
+                if (!dispatcher) return;
+                dispatcher.end('Stopped from reaction');
                 npMsg.channel.send(embed.msg('⏹ ' + __("`{{songName}}` stopped by {{user}}",
-                  { songName: this._currentSongData.title, user: user.username })))
-                  .then(() => this.resetCurrentSongData());
+                  { songName: this.currentSong.title, user: user.username })));
+                // .then(() => this.resetCurrentSongData());
                 this.handleReacts(true);
                 break;
               }
@@ -176,8 +221,8 @@ export class MusicService {
         });
       }
 
-      if (this._player) {
-        if (!this._player.paused) await npMsg.react('⏸');
+      if (dispatcher) {
+        if (!dispatcher.paused) await npMsg.react('⏸');
         else await npMsg.react('▶');
         await npMsg.react('⏹');
 

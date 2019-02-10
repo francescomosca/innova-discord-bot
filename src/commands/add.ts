@@ -1,15 +1,15 @@
 import { Message } from 'discord.js';
+import { __ } from 'i18n';
 
-import { MusicService } from '../services/music-service';
 import { Command } from '../models/command';
 import { logDebug } from '../utils/logger';
-import { __ } from 'i18n';
-import { embed } from '../utils/utils';
+// import { MusicService } from '../services/music-service';
+// import { embed } from '../utils/utils';
 
 const cmd: Command = {
-  name: 'play',
-  aliases: ['stream', 'search'],
-  description: __("command.play.description"),
+  name: 'add',
+  aliases: [],
+  description: __("command.add.description"),
   category: 'music',
   args: true,
   usage: '<youtube url | query string>',
@@ -19,6 +19,7 @@ const cmd: Command = {
 
     if (!message.guild) return;
 
+    /*
     const voiceChannel = message.member.voiceChannel;
     if (!voiceChannel) return message.reply(embed.msg(__('Please join a voice channel first!')));
 
@@ -30,6 +31,7 @@ const cmd: Command = {
     );
     return musicServ.addSongs(cleanQuery, message.author.id)
       .catch(err => Promise.reject(err));
+      */
   },
 };
 

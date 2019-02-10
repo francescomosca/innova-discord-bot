@@ -24,11 +24,11 @@ const cmd: Command = {
 
     const musicServ = MusicService.getInstance();
     // dev'esserci qualcosa in riproduzione, quindi:
-    if (musicServ.player) {
-      const oldVol = musicServ.player.volume * 100; // player.volume ragiona da 0.00 a 1.00
+    if (musicServ.currentPlayer) {
+      const oldVol = musicServ.currentPlayer.volume * 100; // player.volume ragiona da 0.00 a 1.00
 
       if (newVol) { // se l'intenzione è di cambiare volume
-        musicServ.player.setVolume(newVol / 100);
+        musicServ.currentPlayer.setVolume(newVol / 100);
         return message.channel.send(
           embed.msg("🔊 " +
             __("command.volume.changed:Volume changed from `{{oldVol}}%` to `{{newVol}}%`.",

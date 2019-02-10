@@ -1,4 +1,4 @@
-export interface YtQuery extends Object {
+export class YtQuery extends Object {
   url: string;
   title: string;
   description?: string;

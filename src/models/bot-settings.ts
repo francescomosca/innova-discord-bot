@@ -18,8 +18,4 @@ export class BotSettings {
 
 export namespace BotSettings {
   export type MusicQuality = "highestaudio" | "lowestaudio";
-  export const category = {
-    highestaudio: <MusicQuality>"highestaudio",
-    lowestaudio: <MusicQuality>"lowestaudio",
-  };
 }

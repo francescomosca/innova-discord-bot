@@ -1,6 +1,8 @@
-<h1 align="center">
-Innova Discord Bot
-</h1>
+<div align="center">
+<h1>Innova Discord Bot</h1>
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f7f0b7f83d6041d299955b81b3bbe03b)](https://www.codacy.com/app/francescomosca/innova-discord-bot?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=francescomosca/innova-discord-bot&amp;utm_campaign=Badge_Grade) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ffrancescomosca%2Finnova-discord-bot?ref=badge_shield) [![HitCount](http://hits.dwyl.io/francescomosca/innova-discord-bot.svg)](http://hits.dwyl.io/francescomosca/innova-discord-bot) 
+</div>
 
 ## Installation
 
@@ -29,6 +31,7 @@ Launch the bot in development mode and live reload:
 > npm run serve
 
 ## Todo
+
 See: [Milestones](https://github.com/francescomosca/innova-discord-bot/milestones)
 
 - [ ] Localization (70%)

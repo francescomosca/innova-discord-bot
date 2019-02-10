@@ -19,12 +19,12 @@ const cmd: Command = {
     // const voiceChannel = message.member.voiceChannel;
     // if (!voiceChannel) return message.reply('please join a voice channel first!');
     const musicService = MusicService.getInstance();
-    if (musicService.player) {
-      musicService.player.end('Stopped from command');
-      return message.channel.send(embed.msg(
+    if (musicService.currentPlayer) {
+      message.channel.send(embed.msg(
         '⏹ ' + __("`{{songName}}` stopped by {{user}}",
-          { songName: musicService.currentSongData.title, user: message.author.username })))
-        .then(() => musicService.resetCurrentSongData());
+        { songName: musicService.currentSong.title, user: message.author.username })));
+        // .then(() => musicService.resetCurrentSongData());
+        musicService.currentPlayer.end('Stopped from command');
     } else return new ErrorHandler(message).byError(E.NoMusicNoStop);
   },
 };

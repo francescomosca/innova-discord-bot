@@ -16,7 +16,7 @@ const cmd: Command = {
     if (!message.guild) return;
 
     const musicService = MusicService.getInstance();
-    if (musicService.player) {
+    if (musicService.currentPlayer) {
       musicService.playingEmbed(message);
     } else return message.channel.send('There is no song playing...');
   },
