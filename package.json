@@ -1,48 +1,52 @@
 {
-	"name": "innova-discord-bot",
-	"version": "1.0.0",
-	"displayName": "Innova Discord Bot",
-	"description": "A Discord Bot made with discord.js",
-	"main": "src/index.ts",
-	"scripts": {
-		"start:dev": "node --inspect -r ts-node/register src/index.ts",
-		"start": "ts-node src/index.ts --transpileOnly",
-		"serve": "nodemon",
-		"lint": "tslint -p ."
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/francescomosca/innova-discord-bot"
-	},
-	"author": "Francesco Mosca <francesco.mosca@outlook.com>",
-	"license": "MIT",
-	"devDependencies": {
-		"@types/cli-spinner": "^0.2.0",
-		"@types/i18n": "^0.8.3",
-		"@types/jsonminify": "^0.4.0",
-		"@types/node": "^9.6.41",
-		"del": "^3.0.0",
-		"nodemon": "^1.17.3",
-		"tslint": "^5.12.1",
-		"tslint-consistent-codestyle": "^1.15.0",
-		"tslint-eslint-rules": "^5.1.0",
-		"tslint-sonarts": "^1.9.0",
-		"typescript": "^3.3.3"
-	},
-	"dependencies": {
-		"bufferutil": "^4.0.1",
-		"cli-spinner": "^0.2.8",
-		"discord.js": "^11.4.2",
-		"erlpack": "github:hammerandchisel/erlpack",
-		"ffmpeg-binaries": "^4.0.0",
-		"i18n": "^0.8.3",
-		"jsonminify": "^0.4.1",
-		"libsodium-wrappers": "^0.7.4",
-		"node-opus": "^0.3.1",
-		"ts-node": "^7.0.1",
-		"winston": "^3.2.1",
-		"winston-daily-rotate-file": "^3.6.0",
-		"ytdl-core": "^0.29.1",
-		"ytsearcher": "^1.2.2"
-	}
+  "name": "innova-discord-bot",
+  "version": "1.0.0",
+  "displayName": "Innova Discord Bot",
+  "description": "A Discord Bot made with discord.js",
+  "main": "src/index.ts",
+  "scripts": {
+    "start:dev": "node --inspect -r ts-node/register src/index.ts",
+    "start": "ts-node src/index.ts --transpileOnly",
+    "serve": "nodemon",
+    "lint": "tslint -p .",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/francescomosca/innova-discord-bot"
+  },
+  "author": "Francesco Mosca <francesco.mosca@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/cli-spinner": "^0.2.0",
+    "@types/i18n": "^0.8.3",
+    "@types/jsonminify": "^0.4.0",
+    "@types/node": "^9.6.41",
+    "del": "^3.0.0",
+    "nodemon": "^1.17.3",
+    "tslint": "^5.12.1",
+    "tslint-consistent-codestyle": "^1.15.0",
+    "tslint-eslint-rules": "^5.1.0",
+    "tslint-sonarts": "^1.9.0",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "cli-spinner": "^0.2.8",
+    "discord.js": "^11.4.2",
+    "erlpack": "github:hammerandchisel/erlpack",
+    "ffmpeg-binaries": "^4.0.0",
+    "i18n": "^0.8.3",
+    "jsonminify": "^0.4.1",
+    "libsodium-wrappers": "^0.7.4",
+    "node-opus": "^0.3.1",
+    "ts-node": "^7.0.1",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^3.6.0",
+    "ytdl-core": "^0.29.1",
+    "ytsearcher": "^1.2.2",
+    "snyk": "^1.126.0"
+  },
+  "snyk": true
 }
