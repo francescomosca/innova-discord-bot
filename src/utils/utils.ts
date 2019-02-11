@@ -6,7 +6,7 @@ import { E } from '../models/errors';
 import { ConfigService } from '../services/config-service';
 import { BotSettings } from './../models/bot-settings';
 import { logVerbose } from './logger';
-import { Song } from '../services/music-service';
+import { Song } from "../models/song";
 
 
 let botAvatar = "";
@@ -124,6 +124,18 @@ export const embed = {
       }
     }
     return { embed: finalEmbed };
+  },
+  queue: (songList: string): { embed: RichEmbed } => {
+    return {
+      embed: new RichEmbed()
+        .setColor(<ColorResolvable>27808)
+        // .setAuthor(message.client.user.username, message.client.user.avatarURL)
+        .setTitle(`🎶 ${__("Song list")} `)
+        .setDescription(songList)
+        
+        .setTimestamp(new Date())
+        .setFooter(embed._defaultFooter, botAvatar)
+    };
   }
 
 };

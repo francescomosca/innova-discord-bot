@@ -10,7 +10,7 @@ const cmd: Command = {
   description: __("command.shutdown.description"),
   args: false,
   category: "admin",
-  async execute(message: Message, /* , _args?: string[] */) {
+  async execute(message: Message, _args?: string[]) {
     await message.channel.send(embed.msg(`${__('command.shutdown.message:Goodbye')} :zzz:`));
     try {
       // @todo gestire client end ?

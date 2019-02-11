@@ -3,22 +3,9 @@ import { ActivityType, ClientUser } from 'discord.js';
 
 import { logDebug, logError } from '../utils/logger';
 import { settings } from '../utils/utils';
-import { MusicService, Song } from './music-service';
+import { MusicService } from './music-service';
+import { Song } from "../models/song";
 import { Subscription } from 'rxjs';
-
-export class BotActivity {
-	name: string = settings().defaultActivity;
-	options = { activity: <ActivityType>"LISTENING" };
-
-	constructor(text?: string, activity?: ActivityType) {
-		logDebug('new BotActivity()');
-		if (text) {
-			if (MusicService.getInstance().currentSong) text = "🎶 " + text;
-			this.name = text;
-		}
-		if (activity) this.options.activity = activity;
-	}
-}
 
 /** Gestisce automaticamente l'attività (testo inferiore al nome) del bot.
  * @requires MusicService.getInstance().currentSong$
@@ -33,7 +20,9 @@ export class BotActivityService {
 	/** Singleton */
 	private constructor(clientUser: ClientUser) {
 		this._bot = clientUser;
-		this._musicSub();
+		this.setBotActivity(); 
+		// then...
+		this._activityByMusic();
 	}
 
 	static getInstance(client: ClientUser) {
@@ -44,18 +33,22 @@ export class BotActivityService {
 		return BotActivityService._instance;
 	}
 
-	private _musicSub(): Subscription {
-		return MusicService.getInstance().songs$.subscribe(
+	private _activityByMusic(): Subscription {
+		return MusicService.getInstance().songsChanged$.subscribe(
 			(songs: Song[]) => { // o undefined
 				logDebug(`currentSong sub songs[0]:\n"${songs[0]}"\nSetto la botActivity...`);
-				this.setBotActivity(songs[0].title);
+				this.setBotActivity(songs[0] ? songs[0].title : null);
 			},
 			err => logError('Errore nel sub di currentSong: ' + err)
 		);
 	}
 
-	setBotActivity = (text?: string, activity?: ActivityType) =>
-		this._bot.setActivity(<any>new BotActivity(text, activity)) // @todo testare quell'<any>
+	/* <any>new BotActivity(text, activity) */
+	setBotActivity = async (text?: string, activity: ActivityType = 'LISTENING') => {
+		if (!text) text = settings().defaultActivity;
+		if (MusicService.getInstance().currentSong) text = "🎶 " + text;
+		return this._bot.setActivity(text, { type : activity}).catch(Promise.reject);
+	}
 
 
 }

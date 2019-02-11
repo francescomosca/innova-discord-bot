@@ -6,7 +6,7 @@ import { ErrorHandler } from './errorhandler';
 import { BotSettings } from './models/bot-settings';
 import { BotActivityService } from './services/bot-activity-service';
 import { CommandService } from './services/command-service';
-import { logError, logInfo, logVerbose, logWarn, setLogLevel } from './utils/logger';
+import { logError, logInfo, logVerbose, logWarn, setLogLevel, logDebug } from './utils/logger';
 import { setBotAvatar } from './utils/utils';
 
 export class DiscordBot {
@@ -51,7 +51,7 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._commandServ.handleCommand(message)
-					.then(_cmd => { }
+					.then(cmd => logDebug('Command done: ' + cmd ? cmd.name : '')
 						, thenErr => new ErrorHandler(message).byError(thenErr, thenErr.command ? thenErr.command : undefined))
 					.catch(err => { new ErrorHandler(message).byError(err.message, err.command ? err.command : undefined); });
 			} /* else {

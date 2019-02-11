@@ -5,6 +5,10 @@ import { logError, logWarn } from './utils/logger';
 import { embed, settings } from './utils/utils';
 import { E } from './models/errors';
 
+/**
+ * @todo Utilizzare un oggetto con gli errori invece dello switch,
+ * e all'interno degli oggetti inserire il tipo di errore (info, warn, error)
+ */
 export class ErrorHandler {
 
   constructor(private _message?: Message) { }
@@ -30,6 +34,7 @@ export class ErrorHandler {
         break;
       case E.CommandError:
         reply = __('There was an error trying to execute that command');
+         if (data.errMessage) reply += `:\n*${data.errMessage}*`;
         break;
       case E.NoCommand:
         // message.channel.send(`There is no command with that name, ${message.author}`);
@@ -73,7 +78,7 @@ export class ErrorHandler {
     if (String(errString).trim().startsWith('Error: No video id found:')) {
       reply = __(`No video id found. You probably sent a wrong url, %s`, msg.author.toString());
     } else {
-      logWarn(__('Error message not found'));
+      logWarn("[byString]" + __('Error message not found'));
     }
 
     if (reply && msg) msg.channel.send(embed.msg(reply));

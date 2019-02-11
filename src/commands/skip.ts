@@ -5,8 +5,8 @@ import { Command } from '../models/command';
 import { MusicService } from '../services/music-service';
 
 const cmd: Command = {
-  name: 'stop',
-  // aliases: ['skip'],
+  name: 'skip',
+  aliases: ['next'],
   description: __("command.stop.description"),
   category: 'music',
   args: false,
@@ -19,7 +19,7 @@ const cmd: Command = {
     
     const musicServ = MusicService.getInstance();
 
-    return musicServ.stop(message.author.username, 'Stopped from command');
+    return musicServ.stop(message.author.username, 'Skipped from command', true);
       // .catch(Promise.reject);
   },
 };

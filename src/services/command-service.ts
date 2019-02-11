@@ -52,7 +52,7 @@ export class CommandService {
 		// logDebug(`${__("Command's list")}: ${this._commands}`);
 	}
 
-	public async handleCommand(cmdMessage: Message): Promise<any> {
+	public async handleCommand(cmdMessage: Message): Promise<Command> {
 		logInfo(`[${__("Triggered")}] ${cmdMessage.author.tag}: '${cmdMessage.content}'`);
 
 		// subtract the command and the args
@@ -70,8 +70,10 @@ export class CommandService {
 			await cmd.execute(cmdMessage, args);
 			return Promise.resolve(cmd);
 		} catch (err) {
-			logError(err);
-			return Promise.reject({ errCode: E.CommandError, errMessage: err });
+			logError('Err: ' + err);
+			// return Promise.reject({ errCode: E.CommandError, errMessage: err });
+			if (!err) err = E.CommandError;
+			return Promise.reject(err);
 		}
 	}
 }

@@ -23,12 +23,13 @@ const cmd: Command = {
       __("The volume needs to be a number from `1` to `%s`", maxVol.toString()));
 
     const musicServ = MusicService.getInstance();
+    const dispatcher = musicServ.currentSong.dispatcher;
     // dev'esserci qualcosa in riproduzione, quindi:
-    if (musicServ.currentPlayer) {
-      const oldVol = musicServ.currentPlayer.volume * 100; // player.volume ragiona da 0.00 a 1.00
+    if (dispatcher) {
+      const oldVol = dispatcher.volume * 100; // player.volume ragiona da 0.00 a 1.00
 
       if (newVol) { // se l'intenzione è di cambiare volume
-        musicServ.currentPlayer.setVolume(newVol / 100);
+        dispatcher.setVolume(newVol / 100);
         return message.channel.send(
           embed.msg("🔊 " +
             __("command.volume.changed:Volume changed from `{{oldVol}}%` to `{{newVol}}%`.",

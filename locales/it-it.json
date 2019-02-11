@@ -25,7 +25,15 @@
 		},
 		"volume": {
 			"description": "Cambia o mostra il volume del player in riproduzione.",
-			"current": "Volume: {{vol}}%"
+			"current": "Volume: {{vol}}%",
+			"changed": "Volume cambiato da `{{oldVol}}%` a `{{newVol}}%`."
+		},
+		"add": {
+			"description": "Inserisce una canzone nella lista"
+		},
+		"queue": {
+			"description": "Mostra l'elenco delle canzoni",
+			"nosongs": "Nessuna canzone presente"
 		}
 	},
 	"Log level set to %s": "Livello del log impostato a %s",
@@ -44,7 +52,7 @@
 	"No video found for that query": "Nessun video trovato per questa ricerca",
 	"`{{songName}}` stopped by {{user}}": "`{{songName}}` è stata fermata da {{user}}",
 	"That command is currently disabled.": "Questo comando è al momento disabilitato.",
-	"There was an error trying to execute that command": "Errore nell'esecuzione del comando.",
+	"There was an error trying to execute that command": "Errore nell'esecuzione del comando",
 	"Connecting...": "Connessione in corso...",
 	"There is no music to stop...": "Non c'è musica in riproduzione da fermare...",
 	"Now Playing": "In Riproduzione",
@@ -53,5 +61,9 @@
 	"Triggered": "Innescato",
 	"Reconnecting...": "Riconnessione...",
 	"I can't say or change the volume while there are no songs playing...": "Non posso trovare o cambiare il volume mentre nessuna canzone è in riproduzione...",
-	"The volume needs to be a number from `1` to `%s`": "Il volume dev'essere un numero da `1` a `%s`"
+	"The volume needs to be a number from `1` to `%s`": "Il volume dev'essere un numero da `1` a `%s`",
+	"Please join a voice channel first!": "Devi essere in un canale vocale!",
+	"Searching": "Ricerco",
+	"Song list": "Lista delle canzoni",
+	"Error message not found": "Messaggio di errore non trovato"
 }

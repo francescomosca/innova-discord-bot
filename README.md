@@ -37,6 +37,7 @@ See: [Milestones](https://github.com/francescomosca/innova-discord-bot/milestone
 - [ ] Localization (70%)
 - [ ] Command modules (probably merging with categories)
 - [ ] Testing
+- [ ] [DiscordEmoji API](https://discordemoji.com/bots) integration
 
 ## Credits
 

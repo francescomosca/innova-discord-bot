@@ -8,8 +8,8 @@ import { embed } from '../utils/utils';
 
 const cmd: Command = {
   name: 'add',
-  aliases: [],
-  description: __("command.add.description"),
+  // aliases: [],
+  description: __("command.add.description:Add a song to the queue"),
   category: 'music',
   args: true,
   usage: '<youtube url | query string>',

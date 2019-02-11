@@ -13,6 +13,7 @@
     "comment-format": [true, "check-space"],
     "forin": true,
     "max-line-length": [true, 180],
+    "max-union-size": [true, 5],
     "new-parens": true,
     "no-arg": true,
     "no-conditional-assignment": true,
