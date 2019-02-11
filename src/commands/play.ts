@@ -23,12 +23,7 @@ const cmd: Command = {
     if (!voiceChannel) return message.reply(embed.msg(__('Please join a voice channel first!')));
 
     const musicServ = MusicService.getInstance();
-    // @todo assicurarsi che non ripeta la sottoscrizione
-    musicServ.songs$.subscribe(
-      async _songs => musicServ.play(voiceChannel, message),
-      err => Promise.reject(err)
-    );
-    return musicServ.addSongs(cleanQuery, message.author.id)
+    return musicServ.addSongs(cleanQuery, voiceChannel, message)
       .catch(err => Promise.reject(err));
   },
 };

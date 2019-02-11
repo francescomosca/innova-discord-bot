@@ -9,7 +9,7 @@ import {
   VoiceConnection,
 } from 'discord.js';
 import { __ } from 'i18n';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { Readable } from 'stream';
 import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
@@ -41,6 +41,7 @@ export class MusicService {
 
   /** Per la gestione singola delle reazioni. Utilizzato in handleReacts */
   private _reactsListener: Client;
+  private _songsSub: Subscription;
 
   /** Singleton */
   private constructor() { }
@@ -57,26 +58,38 @@ export class MusicService {
   }
   // public resetCurrentSongData = (): void => this._currentSongData = null;
 
-  /* 1. vengo chiamato da !play che mi manda un url o una stringa da ricercare */
-  addSongs = async (query: string = '', requestedBy: string): Promise<any> => {
+  /* 1. vengo chiamato da !play che mi manda:
+     - un url o una stringa da ricercare 
+     - il canale vocale di chi ha triggerato
+     - il messaggio trigger
+  */
+  addSongs = async (query: string = '', voiceChannel: VoiceChannel, triggerMessage: Message): Promise<any> => {
+    // @todo assicurarsi che non ripeta la sottoscrizione
+    if (!this._songsSub) this._songsSub = this.songs$.subscribe(
+      async _songs => {
+        logDebug('--- musicServ.songs$.subscribe');
+        return this.play(voiceChannel, triggerMessage);
+      },
+      err => Promise.reject(err)
+    );
     logDebug('[playFromYoutube] ricevuto urlOrText: ' + query);
 
-    /* 2. do la query a searchFromYoutube che mi ritorna la la YtQuery */
+    /* 3. do la query a searchFromYoutube che mi ritorna la la YtQuery */
     const songFound: YtQuery = await this.searchFromYoutube(query)
       .catch(err => Promise.reject(err));
 
     if (songFound.liveBroadcastContent == 'live') return Promise.reject('live_content_unsupported');
     if (songFound.title && songFound.url && songFound.thumbnails.default.url) {
 
-      /* 3. aggiungo la canzone alla queue */
+      /* 4. aggiungo la canzone alla queue */
       this._songs.push({
         title: songFound.title,
         url: songFound.url,
         thumbnailUrl: songFound.thumbnails.default.url,
-        requestedBy: requestedBy
+        requestedBy: triggerMessage.author.id
       });
 
-      /* 4. aggiorno lo stato delle canzoni, facendo fare il lavoro sporco a play() */
+      /* 5. aggiorno lo stato delle canzoni, facendo fare il lavoro sporco a play() */
       this._songsSource.next(this._songs);
       // await this.play(userVoiceChannel, playCmdMessage);
     } else Promise.reject('no_data_in_youtube_query');
@@ -85,7 +98,6 @@ export class MusicService {
   play = async (userVoiceChannel: VoiceChannel, playCmdMessage: Message) => {
     const song = this.currentSong;
 
-    /* 10. Se non ci sono altre canzoni, esco dal canale vocale */
     if (!song && userVoiceChannel.speakable) {
       logDebug('nessuna song e speakable, quindi esco');
       userVoiceChannel.leave();
@@ -97,37 +109,41 @@ export class MusicService {
     //   this.handleReacts(true); // necessario?
     // }
 
-    /* 5. Entro nel canale vocale */
+    /* 6. Entro nel canale vocale */
     this._voiceConnection = await userVoiceChannel.join().catch(err => Promise.reject(err));
     logDebug('musicQuality: ' + this._config.musicQuality);
 
     try {
       const stream: Readable = ytdl(song.url, { quality: this._config.musicQuality });
-      /* 6. faccio lo stream di ciò che mi da ytdl */
+      /* 7. faccio lo stream di ciò che mi da ytdl */
       song.dispatcher = this._voiceConnection.playStream(stream, { bitrate: 'auto' }); // @todo vedere seek
       // this._currentSongData = ytSong;
 
       
-      /* 7. invio l'embed Now Playing e gestisco i reacts */
+      /* 8. invio l'embed Now Playing e gestisco i reacts */
       const npMessage = await this.playingEmbed(playCmdMessage.channel)
       .catch(err => Promise.reject(err));
       this._nowPlayingMessage = npMessage;
       this.handleReacts();
 
-      /* 8. elimino il messaggio trigger !play <> */
+      /* 9. elimino il messaggio trigger !play <> */
       playCmdMessage.deletable ? playCmdMessage.delete() : logDebug("Non ho eliminato il message del comando 'play'");
 
       // setBotActivity(playCmdMessage, `🎶 ${song.title}`);
 
       song.dispatcher.on('end', reason => {
-        /* 9. Alla fine dello stream ________ */
+        /* 10. alla fine dello stream rimuovo la canzone completata, 
+          aggiorno i reacts e se c'è un altra canzone, innesco play(), altrimenti esco dal canale vocale */
         logDebug("Player 'end'" + reason ? ": " + reason : "");
         this._songs.shift();
         this.handleReacts(true);
         if (this._songs.length) this._songsSource.next(this._songs);
+        else if (userVoiceChannel.speakable) {
+            logDebug('nessuna song e speakable, quindi esco');
+            userVoiceChannel.leave();
+            return;
+        }
         // setBotActivity(playCmdMessage, "default");
-        // this._currentSongData = null;
-        // voiceChannel.leave();
       });
 
       return Promise.resolve();
@@ -165,7 +181,7 @@ export class MusicService {
   playingEmbed = async (channel: TextChannel | DMChannel | GroupDMChannel): Promise<Message> => {
     const data = this.currentSong;
     if (!data) Promise.reject('no data in playingEmbed');
-    const embedMsg = await channel.send(embed.nowPlaying(data, data.requestedBy));
+    const embedMsg = await channel.send(embed.nowPlaying(data));
     return Array.isArray(embedMsg) ? embedMsg[0] : embedMsg;
   }
 

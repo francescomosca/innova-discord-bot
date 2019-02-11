@@ -5,8 +5,8 @@ import { Command } from '../models/command';
 import { E } from '../models/errors';
 import { ConfigService } from '../services/config-service';
 import { BotSettings } from './../models/bot-settings';
-import { YtQuery } from './../models/yt-query';
 import { logVerbose } from './logger';
+import { Song } from '../services/music-service';
 
 
 let botAvatar = "";
@@ -89,14 +89,14 @@ export const embed = {
         // .setTimestamp(new Date())
     };
   },
-  nowPlaying: (data: YtQuery, requestedBy: string): { embed: RichEmbed } => {
+  nowPlaying: (data: Song): { embed: RichEmbed } => {
     return {
       embed: new RichEmbed()
         .setColor(<ColorResolvable>27808)
         // .setAuthor(message.client.user.username, message.client.user.avatarURL)
         .setTitle(`🎶 ${__("Now Playing")} `)
-        .setDescription(`[${data.title}](${data.url})\n${__("Requested by:")} <@${requestedBy}>`)
-        .setThumbnail(data.thumbnails.default.url)
+        .setDescription(`[${data.title}](${data.url})\n${__("Requested by:")} <@${data.requestedBy}>`)
+        .setThumbnail(data.thumbnailUrl)
         .setTimestamp(new Date())
         .setFooter(embed._defaultFooter, botAvatar)
     };
