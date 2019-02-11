@@ -32,6 +32,7 @@ export class DiscordBot {
 		this._start();
 	}
 
+// tslint:disable-next-line: cognitive-complexity
 	private _start(): void {
 
 		/* => Bot is ready...*/
@@ -51,7 +52,7 @@ export class DiscordBot {
 			// => Prevent message from the bot
 			if (message.content.startsWith(this._config.prefix) && !message.author.bot) {
 				this._commandServ.handleCommand(message)
-					.then(cmd => logDebug('Command done: ' + cmd ? cmd.name : '')
+					.then(cmd => logDebug('Command done: ' + (cmd ? cmd.name : ''))
 						, thenErr => new ErrorHandler(message).byError(thenErr, thenErr.command ? thenErr.command : undefined))
 					.catch(err => { new ErrorHandler(message).byError(err.message, err.command ? err.command : undefined); });
 			} /* else {

@@ -16,34 +16,43 @@ const cmd: Command = {
     if (!message.guild) return;
     const maxVol = Number(settings().maxVolume);
 
-    const newVol: number = Number(args[0]);
+    const reqVol: number = Number(args[0]);
 
     // se non è un numero o è errato (rileva il NaN)
-    if (args.length && (!newVol || newVol < 1 || newVol > maxVol)) return message.channel.send(
-      __("The volume needs to be a number from `1` to `%s`", maxVol.toString()));
+    if (args.length && (!reqVol || reqVol < 1 || reqVol > maxVol)) return message.channel.send(embed.msg(
+      __("The volume needs to be a number from `1` to `%s`", maxVol.toString()),
+      false
+    ));
 
     const musicServ = MusicService.getInstance();
-    const dispatcher = musicServ.currentSong.dispatcher;
-    // dev'esserci qualcosa in riproduzione, quindi:
-    if (dispatcher) {
-      const oldVol = dispatcher.volume * 100; // player.volume ragiona da 0.00 a 1.00
 
-      if (newVol) { // se l'intenzione è di cambiare volume
-        dispatcher.setVolume(newVol / 100);
-        return message.channel.send(
-          embed.msg("🔊 " +
-            __("command.volume.changed:Volume changed from `{{oldVol}}%` to `{{newVol}}%`.",
-              { oldVol: oldVol.toString(), newVol: newVol.toString() })
-            , false));
-      } else { // altrimenti mostra il volume
-        message.channel.send(embed.msg("🔊 " +
-          __('command.volume.current:Current volume: {{vol}}%', { vol: oldVol.toString() })
-          , false));
-      }
+    // Se vuole solo sapere il volume corrente
+    if (!reqVol) return message.channel.send(embed.msg("🔊 " +
+      __('command.volume.current:Current volume: {{vol}}%', 
+      { vol: (musicServ.lastVolume * 100).toString() })
+      , false));
 
-    } else return message.channel.send(embed.msg(
-      __("I can't say or change the volume while there are no songs playing...")));
+    let oldVol: number;
 
+    // se vuole modificarlo
+    if (musicServ.currentSong) {
+      // aggiorno sia il dispatcher che lastVolume
+      // player.volume ragiona da 0.00 a 1.00
+      oldVol = musicServ.currentSong.dispatcher.volume * 100;
+      musicServ.currentSong.dispatcher.setVolume(reqVol / 100);
+    } else {
+      // mi prendo solo il vecchio valore
+      oldVol = musicServ.lastVolume * 100;
+    }
+
+    // aggiorno lastVolume
+    musicServ.lastVolume = reqVol / 100;
+
+    return message.channel.send(
+      embed.msg("🔊 " +
+        __("command.volume.changed:Volume changed from `{{oldVol}}%` to `{{newVol}}%`.",
+          { oldVol: oldVol.toString(), newVol: reqVol.toString() })
+        , false));
   },
 };
 

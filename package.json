@@ -21,7 +21,6 @@
 		"@types/i18n": "^0.8.3",
 		"@types/jsonminify": "^0.4.0",
 		"@types/node": "^9.6.41",
-		"del": "^3.0.0",
 		"nodemon": "^1.17.3",
 		"tslint": "^5.12.1",
 		"tslint-consistent-codestyle": "^1.15.0",
@@ -30,7 +29,6 @@
 		"typescript": "^3.3.3"
 	},
 	"dependencies": {
-		"bufferutil": "^4.0.1",
 		"cli-spinner": "^0.2.8",
 		"discord.js": "^11.4.2",
 		"erlpack": "github:hammerandchisel/erlpack",
@@ -44,6 +42,7 @@
 		"winston": "^3.2.1",
 		"winston-daily-rotate-file": "^3.6.0",
 		"ytdl-core": "^0.29.1",
-		"ytsearcher": "^1.2.2"
+		"ytsearcher": "^1.2.2",
+		"zlib-sync": "^0.1.4"
 	}
 }

@@ -1,12 +1,4 @@
-import {
-  Client,
-  DMChannel,
-  GroupDMChannel,
-  Message,
-  TextChannel,
-  VoiceChannel,
-  VoiceConnection,
-} from 'discord.js';
+import { Client, DMChannel, GroupDMChannel, Message, TextChannel, VoiceChannel, VoiceConnection } from 'discord.js';
 import { __ } from 'i18n';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { Readable } from 'stream';
@@ -14,15 +6,16 @@ import ytdl = require('ytdl-core');
 import { YTSearcher } from 'ytsearcher';
 
 import { ErrorHandler } from '../errorhandler';
-import { logDebug, logError, logVerbose, logWarn, logInfo } from '../utils/logger';
+import { Song } from '../models/song';
+import { logDebug, logError, logInfo, logVerbose, logWarn } from '../utils/logger';
 import { embed, settings } from '../utils/utils';
 import { BotSettings } from './../models/bot-settings';
 import { YtQuery } from './../models/yt-query';
-import { Song } from '../models/song';
 
 export class MusicService {
   private static _instance: MusicService;
   private _config: BotSettings = settings();
+  lastVolume: number = 1; // 1 is the default volume (100%)
 
   private _songs: Song[] = [];
   private _songsSource = new Subject();
@@ -34,6 +27,7 @@ export class MusicService {
   /** Per la gestione singola delle reazioni. Utilizzato in handleReacts */
   private _reactsListener: Client;
   private _songsSub: Subscription;
+  private _stopTotal: boolean;
 
   /** Singleton */
   private constructor() { }
@@ -56,26 +50,37 @@ export class MusicService {
   /** 1. (vengo chiamato da !play o !add)
    * @param {string} query un url o una stringa da ricercare 
    * @param {VoiceChannel} voiceChannel il canale vocale di chi ha triggerato
-   * @param {Message} triggerMessage il messaggio trigger
+   * @param {Message} triggerMsg il messaggio trigger
    * @param {boolean} instant utile per ascoltare una singola canzone, resettando la queue
   */
-  addSongs = async (query: string = '', voiceChannel: VoiceChannel, triggerMessage: Message, instant: boolean = false): Promise<any> => {
+  addSongs = async (query: string = '', voiceChannel: VoiceChannel, triggerMsg: Message, instant: boolean = false): Promise<any> => {
     logDebug('[playFromYoutube] ricevuto urlOrText: ' + query);
 
-    // @todo assicurarsi che non ripeta la sottoscrizione
     if (!this._songsSub) this._songsSub = this.songsChanged$.subscribe(
       async songs => {
-        logDebug('--- musicServ.songs$.subscribe songs: ' + (songs == {} ? "vuoto" : songs));
-        if (songs == {}) return;
-        return this.play(voiceChannel, triggerMessage);
+        logDebug('--- songsChanged$ songs: ' + songs);
+        // if (songs == {}) return;
+        if (Array.isArray(songs) && !songs.length) {
+          if (voiceChannel.speakable) {
+            logDebug('speakable, quindi esco');
+            voiceChannel.leave();
+          }
+          return logInfo('[songsChanged$] Nessuna canzone. Esco.');
+        }
+        return this.play(voiceChannel, triggerMsg);
       },
       err => Promise.reject(err)
     );
-    triggerMessage.channel.send(`:mag_right: ${__("Searching")} \`${query}\``);
+    // ////////////////////////////////////
+
+    triggerMsg.channel.send(`:mag_right: ${__("Searching")} \`${query}\``);
 
     /* 3. do la query a searchFromYoutube che mi ritorna la la YtQuery */
     const songFound: YtQuery = await this.searchFromYoutube(query)
-      .catch(err => Promise.reject(err));
+      .catch(err => {
+        new ErrorHandler(triggerMsg).byError(err);
+        return Promise.reject("command_error");
+      });
 
     if (songFound.liveBroadcastContent == 'live') return Promise.reject('live_content_unsupported');
     if (songFound.title && songFound.url && songFound.thumbnails.default.url) {
@@ -91,28 +96,20 @@ export class MusicService {
         title: songFound.title,
         url: songFound.url,
         thumbnailUrl: songFound.thumbnails.default.url,
-        requestedBy: triggerMessage.author.id
+        requestedBy: triggerMsg.author.id
       });
 
       /* 5. aggiorno lo stato delle canzoni, facendo fare il lavoro sporco a play() */
       if (instant || this._songs.length == 1) this._songsSource.next(this._songs);
-      else triggerMessage.channel.send(
+      else triggerMsg.channel.send(
         embed.msg(`\`${songFound.title}\` aggiunta alla lista.`)
-        );
+      );
       // await this.play(userVoiceChannel, playCmdMessage);
     } else Promise.reject('no_data_in_yt_query');
   }
 
   play = async (userVoiceChannel: VoiceChannel, playCmdMessage: Message) => {
     const song: Song = this.currentSong;
-
-    if (!song) {
-      if (userVoiceChannel.speakable) {
-        logDebug('speakable, quindi esco');
-        userVoiceChannel.leave();
-      }
-      return logInfo('Nessuna canzone ma sono in play(). Esco.');
-    }
 
     /* 6. Entro nel canale vocale */
     this._voiceConnection = await userVoiceChannel.join().catch(err => Promise.reject(err));
@@ -121,55 +118,51 @@ export class MusicService {
     try {
       const stream: Readable = ytdl(song.url, { quality: this._config.musicQuality });
       /* 7. faccio lo stream di ciò che mi da ytdl */
-      song.dispatcher = this._voiceConnection.playStream(stream, { bitrate: 'auto' }); // @todo vedere seek
+      song.dispatcher = this._voiceConnection.playStream(stream, { bitrate: 'auto', volume: this.lastVolume }); // @todo vedere seek
       // this._currentSongData = ytSong;
 
       /* 8. invio l'embed Now Playing e gestisco i reacts */
       this._nowPlayingMessage = await this.playingEmbed(playCmdMessage.channel)
-      .catch(err => Promise.reject(err));
+        .catch(err => Promise.reject(err));
       this.handleReacts();
 
       /* 9. elimino il messaggio trigger !play <> */
       playCmdMessage.deletable ? playCmdMessage.delete() : logDebug("Non ho eliminato il message del comando 'play'");
 
-      // setBotActivity(playCmdMessage, `🎶 ${song.title}`);
-
       song.dispatcher.on('end', reason => {
         /* 10. alla fine dello stream rimuovo la canzone completata, 
           aggiorno i reacts e se c'è un altra canzone, innesco play(), altrimenti esco dal canale vocale */
-        logDebug("Player 'end'" + reason ? ": " + reason : "");
+        logDebug("Player 'end'" + (reason ? ": " + reason : ""));
         this._songs.shift();
         this.handleReacts(true);
+
+        if (this._stopTotal) {
+          this._songs = [];
+          this._stopTotal = false;
+        }
+
         this._songsSource.next(this._songs);
-        /* if (!this._songs.length && userVoiceChannel.speakable) {
-            logDebug('nessuna song e speakable, quindi esco');
-            userVoiceChannel.leave();
-        } */
-        // setBotActivity(playCmdMessage, "default");
       });
 
       return Promise.resolve();
     } catch (err) {
       if (userVoiceChannel.speakable) {
         song.dispatcher = null;
-        // this._currentSongData = null;
         userVoiceChannel.leave();
       }
-      // setBotActivity(playCmdMessage, "default");
       return new ErrorHandler(playCmdMessage).byString(err); // ?
     }
   }
 
   stop = async (username: string, reason?: string, onlyCurrent: boolean = false) => {
     const song = this.currentSong;
-    const npMsg = this._nowPlayingMessage;
     if (!song) return Promise.reject('no_music_no_stop');
-    song.dispatcher.end(reason);
-    if (!onlyCurrent) this._songs = [];
-    npMsg.channel.send(embed.msg('⏹ ' + __("`{{songName}}` stopped by {{user}}",
+    this._nowPlayingMessage.channel.send(embed.msg('⏹ ' + __("`{{songName}}` stopped by {{user}}",
       { songName: song.title, user: username })));
-    // .then(() => this.resetCurrentSongData());
-    /* this.handleReacts(true); // lo fa già .on('end') */
+
+    if (!onlyCurrent) this._stopTotal = true;
+
+    song.dispatcher.end(reason);
   }
 
   /**
@@ -188,6 +181,12 @@ export class MusicService {
         return Promise.resolve(<YtQuery>queryResult.first);
       } else return Promise.reject("yt_not_found");
     } catch (err) {
+      if (err.message) {
+        const braceIndex = String(err.message).indexOf("{");
+        const errObj = JSON.parse(String(err.message).slice(braceIndex));
+        const errCode = 'google_' + errObj.error.errors[0].reason;
+        return Promise.reject(errCode);
+      }
       return Promise.reject(err);
     }
   }
@@ -241,7 +240,7 @@ export class MusicService {
               }
               case '⏹': {
                 this.stop(user.username, 'Stopped from reaction');
-                  // .catch(Promise.reject);
+                // .catch(Promise.reject);
                 break;
               }
               case '⏭': {

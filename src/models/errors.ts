@@ -15,5 +15,7 @@ export enum E {
   CommandDisabled = "command_disabled",
   NoMusicNoStop = "no_music_no_stop",
   CantDm = "cant_dm",
-  Unknown = "?"
+  Unknown = "?",
+  GoogleQuotaExceeded = "google_quotaExceeded",
+  GoogleDailyLimitExceeded = "google_dailyLimitExceeded"
 }

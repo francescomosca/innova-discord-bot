@@ -34,7 +34,7 @@ export class ErrorHandler {
         break;
       case E.CommandError:
         reply = __('There was an error trying to execute that command');
-         if (data.errMessage) reply += `:\n*${data.errMessage}*`;
+        if (data.errMessage) reply += `:\n*${data.errMessage}*`;
         break;
       case E.NoCommand:
         // message.channel.send(`There is no command with that name, ${message.author}`);
@@ -46,7 +46,8 @@ export class ErrorHandler {
         reply = __(`No video found for that query`);
         break;
       case E.LiveContentUnsupported:
-        reply = 'Mi dispiace, ma al momento non sono supportati contenuti in diretta.'; // @todo traduzione
+        reply = 'Mi dispiace, ma al momento non sono supportati contenuti in diretta.'; 
+        // @todo traduzione
         break;
       case E.NoConfig:
         logError(`
@@ -65,6 +66,9 @@ export class ErrorHandler {
         logError(`Could not send help DM${args[0] ? "to" + args[0] : ""}.\n` + data.errMessage);
         reply = __("command.help.dmError:it seems like I can't DM you! Do you have DMs disabled?");
         break;
+      case E.GoogleQuotaExceeded: 
+        logError('Google quota exceeded');
+        break;
       default: // e case '?'
         logError(__('Unknown error') + data.errMessage ? `: ${data.errMessage}` : "");
     }
@@ -78,7 +82,7 @@ export class ErrorHandler {
     if (String(errString).trim().startsWith('Error: No video id found:')) {
       reply = __(`No video id found. You probably sent a wrong url, %s`, msg.author.toString());
     } else {
-      logWarn("[byString]" + __('Error message not found'));
+      logWarn("[byString] " + __('Error message not found'));
     }
 
     if (reply && msg) msg.channel.send(embed.msg(reply));
