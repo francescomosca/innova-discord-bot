@@ -46,7 +46,7 @@
     "winston-daily-rotate-file": "^3.6.0",
     "ytdl-core": "^0.29.1",
     "ytsearcher": "^1.2.2",
-    "snyk": "^1.189.0"
+    "snyk": "^1.199.2"
   },
   "snyk": true
 }
