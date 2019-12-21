@@ -41,6 +41,12 @@ patch:
         patched: '2019-07-25T13:01:01.317Z'
     - snyk > @snyk/dep-graph > graphlib > lodash:
         patched: '2019-07-25T13:01:01.317Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/dep-graph > lodash:
+        patched: '2019-12-21T15:37:17.854Z'
+    - snyk > snyk-nuget-plugin > dotnet-deps-parser > lodash:
+        patched: '2019-12-21T15:37:17.854Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/cocoapods-lockfile-parser > @snyk/dep-graph > lodash:
+        patched: '2019-12-21T15:37:17.854Z'
   SNYK-JS-TREEKILL-536781:
     - snyk > snyk-sbt-plugin > tree-kill:
         patched: '2019-12-11T21:12:59.967Z'
